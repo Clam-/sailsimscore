@@ -1,10 +1,13 @@
 from sqlalchemy import (
     Column,
+    ForeignKey,
     Integer,
     Text,
     Numeric,
+    DateTime,
     BINARY,
 )
+from sqlalchemy.orm import relationship
 
 from .meta import Base
 
@@ -18,8 +21,8 @@ class Recording(Base):
     datetime = Column(DateTime)
     hash = Column(BINARY(20)) #hashlib.sha224(b"content").digest()
 
-    uploader_id = Column(ForeignKey('users.id'), nullable=False)
-    uploader = relationship('User', backref='recordings')
+    user_id = Column(ForeignKey('users.id'), nullable=False)
+    user = relationship('User', backref='recordings')
 
     boat_id = Column(ForeignKey('boats.id'), nullable=False)
     boat = relationship('Boat', backref='recordings')
