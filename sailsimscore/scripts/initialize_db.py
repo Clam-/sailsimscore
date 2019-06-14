@@ -12,8 +12,9 @@ def setup_models(dbsession):
     Add or update models / fixtures in the database.
 
     """
-    model = models.mymodel.MyModel(name='one', value=1)
-    dbsession.add(model)
+    root = models.user.User(name='root', role=models.user.Role.admin)
+    root.set_password("sailsimscore")
+    dbsession.add(root)
 
 
 def parse_args(argv):

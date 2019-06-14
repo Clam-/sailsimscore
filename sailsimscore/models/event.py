@@ -15,7 +15,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
     order = Column(Integer)
-    active = Column(Boolean)
+    active = Column(Boolean(name="active"))
 
 class EventAssociation(Base):
     __tablename__ = 'eventrecordings'

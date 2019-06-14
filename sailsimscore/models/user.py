@@ -1,18 +1,26 @@
 import bcrypt
+from enum import Enum as pyEnum
 from sqlalchemy import (
     Column,
     Integer,
     Text,
+    Enum
 )
 
 from .meta import Base
+
+class Role(pyEnum):
+    admin = "A"
+    user = "U"
+    teamadmin = "T"
 
 class User(Base):
     """ The SQLAlchemy declarative model class for a User object. """
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False, unique=True)
-    role = Column(Text, nullable=False)
+    role = Column(Enum(Role), nullable=False, name="role")
+    email = Column(Text)
 
     password_hash = Column(Text)
 

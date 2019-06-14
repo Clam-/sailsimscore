@@ -8,7 +8,7 @@
     <meta name="author" content="Pylons Project">
     <link rel="shortcut icon" href="{{request.static_url('sailsimscore:static/pyramid-16x16.png')}}">
 
-    <title>Cookiecutter Starter project for the Pyramid Web Framework</title>
+    <title>{% block subtitle %}{% endblock %}Virtual Sailing Leaderboards</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -32,23 +32,23 @@
             <img class="logo img-responsive" src="{{request.static_url('sailsimscore:static/pyramid.png') }}" alt="pyramid web framework">
           </div>
           <div class="col-md-10">
-            {% block content %}
-                <p>No content</p>
-            {% endblock content %}
-          </div>
-        </div>
-        <div class="row">
-          <div class="links">
-            <ul>
-              <li><i class="glyphicon glyphicon-cog icon-muted"></i><a href="https://github.com/Pylons/pyramid">Github Project</a></li>
-              <li><i class="glyphicon glyphicon-globe icon-muted"></i><a href="https://webchat.freenode.net/?channels=pyramid">IRC Channel</a></li>
-              <li><i class="glyphicon glyphicon-home icon-muted"></i><a href="https://pylonsproject.org">Pylons Project</a></li>
-            </ul>
+            <div class="content">
+            {% if request.user is none %}
+            <p class="pull-right">
+            <a href="{{ request.route_url('login') }}">Login</a>
+            </p>
+            {% else %}
+            <p class="pull-right">
+            {{request.user.name}} <a href="{{request.route_url('logout')}}">Logout</a>
+            </p>
+            {% endif %}
+            {% block content %}{% endblock %}
+            </div>
           </div>
         </div>
         <div class="row">
           <div class="copyright">
-            Copyright &copy; Pylons Project
+            Copyright &copy; Virtual Sailing
           </div>
         </div>
       </div>

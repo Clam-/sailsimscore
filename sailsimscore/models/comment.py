@@ -22,5 +22,5 @@ class CommentAssociation(Base):
     __tablename__ = 'reccomments'
     recording_id = Column(Integer, ForeignKey('recordings.id'), primary_key=True)
     comment_id = Column(Integer, ForeignKey('comments.id'), primary_key=True)
-    op = Column(Boolean)
+    op = Column(Boolean(name="op"))
     comment = relationship("Comment")
