@@ -20,8 +20,8 @@ class MyAuthenticationPolicy(AuthTktAuthenticationPolicy):
         if user is not None:
             principals.append(Authenticated)
             principals.append(str(user.id))
-            principals.append('role:' + user.role)
-        return principal
+            principals.append('role:' + user.role.value)
+        return principals
 
 def get_user(request):
     user_id = request.unauthenticated_userid

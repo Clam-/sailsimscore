@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    Table,
     Column,
     ForeignKey,
     Integer,
@@ -9,6 +10,11 @@ from sqlalchemy.orm import relationship
 
 from .meta import Base
 
+association_table = Table('eventrecordings', Base.metadata,
+    Column('event_id', Integer, ForeignKey('events.id')),
+    Column('recording_id', Integer, ForeignKey('recordings.id'))
+)
+
 class Event(Base):
     """ The SQLAlchemy declarative model class for an Event object. """
     __tablename__ = 'events'
@@ -16,10 +22,8 @@ class Event(Base):
     name = Column(Text, nullable=False)
     order = Column(Integer)
     active = Column(Boolean(name="active"))
+    current = Column(Boolean(name="current"))
+    notes = Column(Text)
 
-class EventAssociation(Base):
-    __tablename__ = 'eventrecordings'
-    event_id = Column(Integer, ForeignKey('events.id'), primary_key=True)
-    recording_id = Column(Integer, ForeignKey('recordings.id'), primary_key=True)
-
-    recording = relationship("Recording")
+    recordings = relationship("Recording", secondary=association_table,
+        back_populates="events")

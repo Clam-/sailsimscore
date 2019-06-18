@@ -7,7 +7,7 @@ import zope.sqlalchemy
 # Base.metadata prior to any initialization routines
 from .boat import Boat  # flake8: noqa
 from .comment import Comment, CommentAssociation  # flake8: noqa
-from .event import Event, EventAssociation  # flake8: noqa
+from .event import Event  # flake8: noqa
 from .recording import Recording  # flake8: noqa
 from .user import User  # flake8: noqa
 

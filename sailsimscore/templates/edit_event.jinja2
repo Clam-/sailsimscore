@@ -1,0 +1,23 @@
+{% from "macros.jinja" import text_box, check_box with context %}
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Event - {{"New" if item.id is none else item.id}}</h1></div>
+    <div class="col my-auto"></div>
+  </div>
+  <form action="{{save_url}}" method="post">
+  {{ text_box("Event name", "eventName", item.name) }}
+  {{ text_box("Ordering indexer", "orderIndex", item.order) }}
+  {{ check_box("Active (shows in event list)", "activeCheck", item.active) }}
+  {{ check_box("Current (makes this the current event)", "currentCheck", item.current) }}
+  <div class="form-group">
+    <label for="noteText">Event Notes/Rules</label>
+    <textarea class="form-control" id="noteText" rows="5"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
+</form>
+</div>
+{% endblock content %}

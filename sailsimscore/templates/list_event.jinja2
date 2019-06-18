@@ -1,0 +1,37 @@
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Events</h1></div>
+    <div class="col my-auto">
+{% if request.user and request.user.isAdmin() %}
+      <a class="btn btn-primary" href="{{request.route_url('add_event')}}" role="button">New</a>
+{% endif %}
+    </div>
+  </row>
+  <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Current</th>
+{% if request.user and request.user.isAdmin() %} <th scope="col">Active</th> {% endif %}
+      <th scope="col">Event name</th>
+      <th scope="col">No. of entries</th>
+{% if request.user and request.user.isAdmin() %} <th scope="col">Edit</th> {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ '\u2714' if item.current }}</td>
+{% if request.user and request.user.isAdmin() %} <td>{{ "\u2714" if item.active }}</td> {% endif %}
+      <td>{{ item.name }}</td>
+      <td>{{ item.recordings|length }}</td>
+{% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock content %}

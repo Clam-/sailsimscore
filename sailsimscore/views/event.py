@@ -6,8 +6,7 @@ from pyramid.view import view_config
 
 from ..models import Event
 
-@view_config(route_name='list_event', renderer='../templates/list_event.jinja2',
-             permission='view')
+@view_config(route_name='list_event', renderer='../templates/list_event.jinja2')
 def list_event(request):
     items = request.dbsession.query(Event)
     return dict(items=items)
@@ -26,26 +25,26 @@ def view_event(request):
 def edit_event(request):
     item = request.context.item
     if 'form.submitted' in request.params:
-        item.name = request.params['name']
-        item.order = request.params['order']
-        item.active = request.params['active']
+        item.name = request.params['eventName']
+        item.order = request.params['orderIndex']
+        item.active = 'activeCheck' in request.params
+        item.current = 'currentCheck' in request.params
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
     return dict(
-        name=item.name,
-        order=item.order,
-        active=item.order,
+        item=item,
         save_url=request.route_url('edit_event', iid=item.id),
         )
 
-@view_config(route_name='add_event', renderer='../templates/add_event.jinja2',
+@view_config(route_name='add_event', renderer='../templates/edit_event.jinja2',
              permission='create')
 def add_event(request):
     item = request.context.item
     if 'form.submitted' in request.params:
-        item.name = request.params['name']
-        item.order = request.params['order']
-        item.active = request.params['active']
+        item.name = request.params['eventName']
+        item.order = request.params['orderIndex']
+        item.active = 'activeCheck' in request.params
+        item.current = 'currentCheck' in request.params
         item.user_id = request.user
         request.dbsession.add(item)
         request.dbsession.flush()

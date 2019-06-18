@@ -1,0 +1,23 @@
+{% macro nav_link(link, text, section) %}
+<li class="nav-item {{ 'active' if request.section == section }}">
+  <a class="nav-link" href="{{link}}">{{text}}
+    {% if section == request.section %}
+      <span class="sr-only">(current)</span>
+    {% endif %}
+  </a>
+</li>
+{% endmacro %}
+
+{% macro text_box(label, eid, value) %}
+<div class="form-group">
+  <label for="{{eid}}">{{label}}</label>
+  <input type="text" class="form-control" id="{{eid}}" name="{{eid}}" value="{{value if value}}">
+</div>
+{% endmacro %}
+
+{% macro check_box(label, eid, value) %}
+<div class="form-group form-check">
+  <input type="checkbox" class="form-check-input" id="eid" name="{{eid}}" {{"checked" if value}}>
+  <label class="form-check-label" for="eid">{{label}}</label>
+</div>
+{% endmacro %}

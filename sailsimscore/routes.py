@@ -16,9 +16,10 @@ def includeme(config):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
 
+    config.add_route('current_event', '/current')
     config.add_route('list_event', '/event')
-    config.add_route('view_event', '/event/{iid}', factory=event_factory)
     config.add_route('add_event', '/event/new', factory=new_event_factory)
+    config.add_route('view_event', '/event/{iid}', factory=event_factory)
     config.add_route('edit_event', '/event/{iid}/edit', factory=event_factory)
     config.add_route('delete_event_prompt', '/event/{iid}/delete', factory=event_factory)
     config.add_route('delete_event', '/event/{iid}/delete', factory=event_factory, request_method="POST")
@@ -69,22 +70,27 @@ class AdminItem(object):
 
     def __acl__(self):
         return [
-            (Allow, 'role:admin', 'create'),
-            (Allow, 'role:admin', 'edit'),
+            (Allow, Everyone, 'view'),
+            (Allow, 'role:A', 'create'),
+            (Allow, 'role:A', 'edit'),
         ]
 def new_user_factory(request, CLS):
     return UserItem(CLS())
+
 class UserItem(object):
     def __init__(self, item):
         self.item = item
 
     def __acl__(self):
-        return [
+        base = [
             (Allow, Everyone, 'view'),
             (Allow, Authenticated, 'create'),
-            (Allow, 'role:admin', 'edit'),
-            (Allow, str(self.item.user_id), 'edit'),
+            (Allow, 'role:A', 'edit')
         ]
+        if hasattr(self.item, "user_id"):
+            base.append((Allow, str(self.item.user_id), 'edit'),)
+        else: print("MISSING USER_ID? on %s" % self.item)
+        return base
 
 #factory for user generated content
 def gen_user_factory(CLS, request):

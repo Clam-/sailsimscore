@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 557453f8b930
+Revision ID: 0ef0c7251787
 Revises: 
-Create Date: 2019-06-14 17:50:59.241053
+Create Date: 2019-06-18 17:52:07.200466
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '557453f8b930'
+revision = '0ef0c7251787'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,6 +28,8 @@ def upgrade():
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('order', sa.Integer(), nullable=True),
     sa.Column('active', sa.Boolean(name='active'), nullable=True),
+    sa.Column('current', sa.Boolean(name='current'), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_events'))
     )
     op.create_table('users',
@@ -52,6 +54,10 @@ def upgrade():
     sa.Column('note', sa.Text(), nullable=True),
     sa.Column('datetime', sa.DateTime(), nullable=True),
     sa.Column('hash', sa.BINARY(length=20), nullable=True),
+    sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
+    sa.Column('modified', sa.Boolean(name='modified'), nullable=True),
+    sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
+    sa.Column('gusts', sa.Enum('none', 'random', 'repeat', name='gusts'), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('boat_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['boat_id'], ['boats.id'], name=op.f('fk_recordings_boat_id_boats')),
@@ -59,11 +65,10 @@ def upgrade():
     sa.PrimaryKeyConstraint('id', name=op.f('pk_recordings'))
     )
     op.create_table('eventrecordings',
-    sa.Column('event_id', sa.Integer(), nullable=False),
-    sa.Column('recording_id', sa.Integer(), nullable=False),
+    sa.Column('event_id', sa.Integer(), nullable=True),
+    sa.Column('recording_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['event_id'], ['events.id'], name=op.f('fk_eventrecordings_event_id_events')),
-    sa.ForeignKeyConstraint(['recording_id'], ['recordings.id'], name=op.f('fk_eventrecordings_recording_id_recordings')),
-    sa.PrimaryKeyConstraint('event_id', 'recording_id', name=op.f('pk_eventrecordings'))
+    sa.ForeignKeyConstraint(['recording_id'], ['recordings.id'], name=op.f('fk_eventrecordings_recording_id_recordings'))
     )
     op.create_table('reccomments',
     sa.Column('recording_id', sa.Integer(), nullable=False),
