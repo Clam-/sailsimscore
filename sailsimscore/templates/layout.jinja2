@@ -1,4 +1,4 @@
-{% from "macros.jinja" import nav_link with context %}
+{% from "macros.jinja" import nav_link, makealert with context %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -48,6 +48,14 @@
 
     <main role="main" class="container">
       <div class="starter-template">
+{% set flash = request.session.pop_flash() %}
+{% if flash %}
+        <div class="row"><div class="col">
+{% for fi in flash %}
+          {{ makealert(fi) }}
+{% endfor %}
+        </div></div>
+{% endif %}
         {% block content %}{% endblock %}
       </div>
 

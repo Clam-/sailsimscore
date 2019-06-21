@@ -1,0 +1,24 @@
+{% from "macros.jinja" import text_box, check_box, text_area with context %}
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col">
+      <h2>Upload Recording</h2> <span>{{ "for %s" % item.event.name if item.event }} </span>
+    </div>
+    <div class="col my-auto"></div>
+  </div>
+  <div class="row p-4">
+  </div>
+  <form action="{{save_url}}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="fileupload">Upload recording file</label>
+      <input type="file" class="form-control-file" id="fileupload" name="fileupload" accept=".sbp">
+    </div>
+  {{ text_area("Recording notes", "notes", item.notes) }}
+  <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
+</form>
+</div>
+{% endblock content %}

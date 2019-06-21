@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 0ef0c7251787
+Revision ID: 35413054f0a0
 Revises: 
-Create Date: 2019-06-18 17:52:07.200466
+Create Date: 2019-06-21 16:51:05.553297
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0ef0c7251787'
+revision = '35413054f0a0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,15 +22,6 @@ def upgrade():
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('resource', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_boats'))
-    )
-    op.create_table('events',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Text(), nullable=False),
-    sa.Column('order', sa.Integer(), nullable=True),
-    sa.Column('active', sa.Boolean(name='active'), nullable=True),
-    sa.Column('current', sa.Boolean(name='current'), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_events'))
     )
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -48,16 +39,28 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_comments_user_id_users')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_comments'))
     )
+    op.create_table('events',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.Text(), nullable=False),
+    sa.Column('order', sa.Integer(), nullable=True),
+    sa.Column('active', sa.Boolean(name='active'), nullable=True),
+    sa.Column('current', sa.Boolean(name='current'), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_events_user_id_users')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_events'))
+    )
     op.create_table('recordings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('time', sa.Numeric(), nullable=True),
-    sa.Column('note', sa.Text(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('datetime', sa.DateTime(), nullable=True),
     sa.Column('hash', sa.BINARY(length=20), nullable=True),
     sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
     sa.Column('modified', sa.Boolean(name='modified'), nullable=True),
     sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
     sa.Column('gusts', sa.Enum('none', 'random', 'repeat', name='gusts'), nullable=False),
+    sa.Column('fileloc', sa.Text(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('boat_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['boat_id'], ['boats.id'], name=op.f('fk_recordings_boat_id_boats')),
@@ -85,8 +88,8 @@ def downgrade():
     op.drop_table('reccomments')
     op.drop_table('eventrecordings')
     op.drop_table('recordings')
+    op.drop_table('events')
     op.drop_table('comments')
     op.drop_table('users')
-    op.drop_table('events')
     op.drop_table('boats')
     # ### end Alembic commands ###

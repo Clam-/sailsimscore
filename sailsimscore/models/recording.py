@@ -27,20 +27,20 @@ class Gusts(pyEnum):
     random = "A"
     repeat = "E"
 
-
 #object/model/table for all recordings. Master list
 class Recording(Base):
     """ The SQLAlchemy declarative model class for a Recording object. """
     __tablename__ = 'recordings'
     id = Column(Integer, primary_key=True)
     time = Column(Numeric)
-    note = Column(Text)
+    notes = Column(Text)
     datetime = Column(DateTime)
     hash = Column(BINARY(20)) #hashlib.sha224(b"content").digest()
     bigcourse = Column(Boolean(name="bigcourse"))
     modified = Column(Boolean(name="modified"))
     course = Column(Enum(Course), nullable=False, name="course")
     gusts = Column(Enum(Gusts), nullable=False, name="gusts")
+    fileloc = Column(Text)
 
     user_id = Column(ForeignKey('users.id'), nullable=False)
     user = relationship('User', backref='recordings')

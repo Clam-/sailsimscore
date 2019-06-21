@@ -25,8 +25,9 @@ def includeme(config):
     config.add_route('delete_event', '/event/{iid}/delete', factory=event_factory, request_method="POST")
 
     config.add_route('list_recording', '/recording')
+    config.add_route('add_recording_id', '/recording/new/{eventid}', factory=new_recording_factory)
+    config.add_route('add_recording', '/recording/new', factory=new_recording_factory)
     config.add_route('view_recording', '/recording/{iid}', factory=recording_factory)
-    config.add_route('add_recording', '/recording/new/{eventid}', factory=new_recording_factory) # POST only
     config.add_route('edit_recording', '/recording/{iid}/edit', factory=recording_factory)
     config.add_route('delete_recording_prompt', '/recording/{iid}/delete', factory=recording_factory)
     config.add_route('delete_recording', '/recording/{iid}/delete', factory=recording_factory, request_method="POST")
@@ -74,9 +75,9 @@ class AdminItem(object):
             (Allow, 'role:A', 'create'),
             (Allow, 'role:A', 'edit'),
         ]
-def new_user_factory(request, CLS):
-    return UserItem(CLS())
 
+def new_user_factory(CLS, request):
+    return UserItem(CLS())
 class UserItem(object):
     def __init__(self, item):
         self.item = item

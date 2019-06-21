@@ -28,7 +28,7 @@
 {% if request.user and request.user.isAdmin() %} <td>{{ "\u2714" if item.active }}</td> {% endif %}
       <td>{{ item.name }}</td>
       <td>{{ item.recordings|length }}</td>
-{% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}
+{% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary btn-sm" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}
     </tr>
 {% endfor %}
   </tbody>

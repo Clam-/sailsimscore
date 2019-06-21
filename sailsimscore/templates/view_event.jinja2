@@ -6,11 +6,17 @@
     <div class="col"></div>
     <div class="col"><h1>{{item.name}}</h1></div>
     <div class="col my-auto">
+{% if item.active or (request.user and request.user.isAdmin()) %}
+      <a class="btn btn-outline-primary" href="{{request.route_url('add_recording_id', eventid=item.id)}}" role="button">Add Recording</a>
+{% endif %}
 {% if request.user and request.user.isAdmin() %}
       <a class="btn btn-primary" href="{{request.route_url('edit_event', iid=item.id)}}" role="button">Edit</a>
 {% endif %}
     </div>
-  </row>
+  </div>
+  <div class="row"><div class="col">
+    {{notes|safe}}
+  </div></div>
   <table class="table">
   <thead>
     <tr>
@@ -27,7 +33,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for item in items %}
+{% for item in items %}
     <tr>
       <td scope="row">{{ loop.index }}</td>
       <td>{{ '\u2714' if item.modified }}</td>

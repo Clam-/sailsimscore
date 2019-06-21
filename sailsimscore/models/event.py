@@ -25,5 +25,8 @@ class Event(Base):
     current = Column(Boolean(name="current"))
     notes = Column(Text)
 
+    user_id = Column(ForeignKey('users.id'), nullable=False)
+    user = relationship('User', backref='events')
+
     recordings = relationship("Recording", secondary=association_table,
         back_populates="events")

@@ -21,6 +21,8 @@ requires = [
     'SQLAlchemy',
     'transaction',
     'zope.sqlalchemy',
+    'Markdown',
+    'pyramid_nacl_session'
 ]
 
 tests_require = [

@@ -1,5 +1,6 @@
 from pyramid.compat import escape
 import re
+import markdown
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
@@ -11,24 +12,36 @@ def list_event(request):
     items = request.dbsession.query(Event)
     return dict(items=items)
 
+@view_config(route_name='current_event', renderer='../templates/list_event.jinja2')
+def current_event(request):
+    item = request.dbsession.query(Event).filter(Event.current==True).first()
+    if item:
+        return HTTPFound(location=request.route_url('view_event', iid=item.id))
+    else:
+        return HTTPFound(location=request.route_url("list_event"))
 
 @view_config(route_name='view_event', renderer='../templates/view_event.jinja2',
              permission='view')
 def view_event(request):
     item = request.context.item
-
     edit_url = request.route_url('edit_event', iid=item.id)
-    return dict(item=item, edit_url=edit_url)
+    return dict(item=item, edit_url=edit_url,
+        notes=markdown.markdown(item.notes if item.notes else "", output_format="html5"))
 
 @view_config(route_name='edit_event', renderer='../templates/edit_event.jinja2',
              permission='edit')
 def edit_event(request):
     item = request.context.item
     if 'form.submitted' in request.params:
+        prev = item.current
+        new = 'currentCheck' in request.params
+        if new and not prev:
+            request.dbsession.query(Event).update({Event.current:False})
         item.name = request.params['eventName']
         item.order = request.params['orderIndex']
         item.active = 'activeCheck' in request.params
         item.current = 'currentCheck' in request.params
+        item.notes = request.params['notes']
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
     return dict(
@@ -41,14 +54,10 @@ def edit_event(request):
 def add_event(request):
     item = request.context.item
     if 'form.submitted' in request.params:
+        item.user = request.user
         item.name = request.params['eventName']
-        item.order = request.params['orderIndex']
-        item.active = 'activeCheck' in request.params
-        item.current = 'currentCheck' in request.params
-        item.user_id = request.user
         request.dbsession.add(item)
         request.dbsession.flush()
-        next_url = request.route_url('view_event', iid=item.id)
-        return HTTPFound(location=next_url)
+        return edit_event(request)
     save_url = request.route_url('add_event')
     return dict(item=item, save_url=save_url)
