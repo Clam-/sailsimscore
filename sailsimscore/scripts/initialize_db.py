@@ -6,6 +6,15 @@ from sqlalchemy.exc import OperationalError
 
 from .. import models
 
+BOAT_LIST = [
+    ("LASER", 1000),
+    ("BYTE", 1001),
+    ("OPTI", 1002),
+    ("MEGABYTE", 1011),
+    ("LIBERTY", 1012),
+    ("LIBERTYMOTOR", 1013),
+    ("29ER", 1014),
+]
 
 def setup_models(dbsession):
     """
@@ -15,7 +24,12 @@ def setup_models(dbsession):
     root = models.user.User(name='root', role=models.user.Role.admin)
     root.set_password("sailsimscore")
     dbsession.add(root)
-
+    # Add boats
+    for boat, num in BOAT_LIST:
+        b = models.boat.Boat()
+        b.id = num
+        b.name = boat
+        dbsession.add(b)
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()

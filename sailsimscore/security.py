@@ -12,6 +12,7 @@ class MyAuthenticationPolicy(AuthTktAuthenticationPolicy):
     def authenticated_userid(self, request):
         user = request.user
         if user is not None:
+            user.lastip = request.remote_addr
             return user.id
 
     def effective_principals(self, request):

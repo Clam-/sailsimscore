@@ -9,5 +9,6 @@ def main(global_config, **settings):
         config.include('.routes')
         config.include('.session')
         config.include('.security')
+        config.include('.utils')
         config.scan()
     return config.make_wsgi_app()

@@ -5,13 +5,16 @@ from datetime import datetime
 from csv import reader
 from io import TextIOWrapper
 from tempfile import TemporaryFile
-from shutil import copyfileobj
+from shutil import copyfileobj, move, copyfile
+from os.path import join
 from hashlib import sha224
+from binascii import hexlify
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from ..models import Recording, Event, Boat
+from ..models.recording import Course, Gusts
 
 @view_config(route_name='list_recording', renderer='../templates/list_recording.jinja2')
 def list_recording(request):
@@ -23,8 +26,7 @@ def list_recording(request):
 def view_recording(request):
     item = request.context.item
     edit_url = request.route_url('edit_recording', iid=item.id)
-    return dict(item=item, edit_url=edit_url,
-        notes=markdown.markdown(item.notes if item.notes else "", output_format="html5"))
+    return dict(item=item, edit_url=edit_url)
 
 @view_config(route_name='edit_recording', renderer='../templates/edit_recording.jinja2',
              permission='edit')
@@ -54,17 +56,18 @@ def add_recording(request):
         prev = request.route_url("view_event", iid=event.id)
     if 'form.submitted' in request.params:
         item.user = request.user
+        item.ip = request.remote_addr
         if item.event and not item.event.active:
             request.session.flash("d|Sorry, event is no longer taking recordings.")
-            return HTTPFound(location=prev)
+            raise HTTPFound(location=prev)
         f = TemporaryFile()
         # move file
-        if "fileupload" in request.POST and request.POST["fileupload"].file:
+        if "fileupload" in request.POST and hasattr(request.POST['fileupload'], 'filename'):
             copyfileobj(request.POST["fileupload"].file, f)
         else:
             #error
             request.session.flash("d|Missing file.")
-            return HTTPFound(location=prev)
+            raise HTTPFound(location=prev)
         ## Read file
         f.seek(0)
         metadata = process_recording(f, request.dbsession)
@@ -72,23 +75,38 @@ def add_recording(request):
             #request.dbsession.rollback()
             request.session.flash("d|%s" % metadata["reason"])
             raise HTTPFound(location=prev)
-        aaa
+        f = metadata["f"] # get file obj after TextIOWrapper hijacks it.
         item.time = metadata["finishtime"]
-        item.datetime = datetime.now()
+        item.datetime = datetime.utcnow()
         item.hash = shadigest(f)
+        # check if recording exists already
+        with request.dbsession.no_autoflush:
+            if request.dbsession.query(Recording).filter(Recording.hash == item.hash).first():
+                request.session.flash("d|%s" % "Recording already uploaded")
+                raise HTTPFound(location=prev)
+        # Add metadata minus note.
         item.bigcourse = metadata["bigcourse"]
         item.modified = metadata["modified"]
         item.course = metadata["coursetype"]
+        item.laps = metadata["laps"]
         g = Gusts.none
         if metadata["gustspeed"] > 0:
             g = metadata["repeatablegusts"]
         item.gusts = g
         item.boat = metadata["boattype"]
-        # Add metadata minus note.
+        # copy/move recording to final location and store
+        f.seek(0)
+        min, sec = divmod(item.time, 60)
+        loc = join(request.registry.settings["reclocation"],
+            "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, hexlify(item.hash).decode("utf-8")[:5]))
+        with open(loc, "wb") as outfile:
+            copyfileobj(f, outfile)
+        item.fileloc = loc
+
         request.dbsession.add(item)
         request.dbsession.flush()
         if item.event: item.event.recordings.append(item)
-        return edit_event(request)
+        return HTTPFound(location=prev)
     save_url = request.route_url('add_recording') if not item.event else request.route_url('add_recording_id', eventid=item.event.id)
     return dict(item=item, save_url=save_url)
 
@@ -117,6 +135,7 @@ def process_recording(f, dbsession):
         metadata = globals()[rowsfunc](csvreader, metadata, dbsession)
     else:
         return metadataError("Rows parser missing.")
+    metadata["f"] = ft.detach()
     return metadata
 
 def metadataError(s):
@@ -126,13 +145,13 @@ def version_1_header(header, metadata, dbsession):
     if len(header) != 8:
         return metadataError("Unsupported recording version")
     else:
-        metadata["changed"] = True if header[1] == "1" else False
+        metadata["modified"] = True if header[1] == "1" else False
         with dbsession.no_autoflush:
             boat = dbsession.query(Boat, ).filter(Boat.id == int(header[2])).first()
             if not boat:
                 return metadataError("Unsupported Boat Type (%s)" % header[2])
             metadata["boattype"] = boat
-        metadata["finishtime"] = 9999999 if header[3] == "0" else float(header[3])
+        metadata["finishtime"] = 99999 if header[3] == "0" else float(header[3])
         metadata["coursetype"] = Course(int(header[4]))
         metadata["bigcourse"] = True if header[5] == "1" else False
         metadata["laps"] = int(header[6])

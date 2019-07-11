@@ -1,13 +1,22 @@
-body {
-  padding-top: 0.5rem;
-}
-.starter-template {
-  padding: 3rem 1.5rem;
-  text-align: center;
+html {
+    height: 100%;
 }
 
-tr:hover {background: #c6d6ef; }
-.table td, .table th { padding: 0.3rem;}
-td a {
-  display: block;
+main > .container {
+  padding: 60px 15px 0;
 }
+
+.footer {
+  background-color: #f5f5f5;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+tr:hover {background: #d7e3f5; }
+
+.table td, .table th { padding: 0.3rem;}
+
+td a { display: block; }

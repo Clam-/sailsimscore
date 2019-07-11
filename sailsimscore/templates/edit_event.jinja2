@@ -7,7 +7,9 @@
     <div class="col"></div>
     <div class="col"><h1>Event - {{"New" if item.id is none else item.id}}</h1></div>
     <div class="col my-auto">
+{% if (request.user and request.user.isAdmin()) and item.id %}
       <a class="btn btn-danger" href="{{request.route_url('delete_event', iid=item.id)}}" role="button">Delete</a>
+{% endif %}
     </div>
   </div>
   <form action="{{save_url}}" method="post">
@@ -18,5 +20,15 @@
   {{ text_area("Event Notes/Rules", "notes", item.notes) }}
   <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
 </form>
+<div class="row">
+{% if item.createdip %}
+  <div class="col">Created IP</div>
+  <div class="col">{{item.createdip}}</div>
+{% endif %}
+{% if item.modip %}
+  <div class="col">Modified IP</div>
+  <div class="col">{{item.modip}}</div>
+{% endif %}
+</div>
 </div>
 {% endblock content %}

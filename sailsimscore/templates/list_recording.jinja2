@@ -1,0 +1,50 @@
+{% extends "layout.jinja2" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Recordings</h1></div>
+    <div class="col my-auto">
+{% if request.user %}
+      <a class="btn btn-primary" href="{{'add_event'|route_url}}" role="button">Upload</a>
+{% endif %}
+    </div>
+  </div>
+  <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col"><abbr title="Modified settings during race">Mod.</abbr></th>
+      <th scope="col">Time</th>
+      <th scope="col">Boat</th>
+      <th scope="col">Course</th>
+      <th scope="col">Laps</th>
+      <th scope="col">Uploaded</th>
+      <th scope="col">User</th>
+      <th scope="col">Gusts</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+{% for item in items %}
+{% set l = request.route_url('view_recording', iid=item.id) %}
+    <tr>
+      <td scope="row"><a href="{{l}}">{{ loop.index }}</a></td>
+      <td><a href="{{l}}">{{ '\u2714' if item.modified }}</a></td>
+      <td><a href="{{l}}">{{ item.time }}</a></td>
+      <td><a href="{{l}}">{{ item.boat.name }}</a></td>
+      <td><a href="{{l}}">{{ item.course }} - {{ "Big" if item.bigcourse }}</a></td>
+      <td><a href="{{l}}">{{ item.laps }}</a></td>
+      <td><a href="{{l}}">{{ item.datetime }}</a></td>
+      <td><a href="{{l}}">{{ item.user.name }}</a></td>
+      <td><a href="{{l}}">{{ item.gusts }}</a></td>
+{% if request.user and (request.user.isAdmin() or request.user == item.user) %} <td><a class="btn btn-outline-primary" href="#">Edit</a></td> {% endif %}
+{% if request.user and (request.user.isAdmin() or request.user == item.user) %}
+  <td><a class="btn btn-outline-warning" href="#"></a><span class="glyphicon glyphicon-remove"></span></td>
+{% endif %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endblock content %}

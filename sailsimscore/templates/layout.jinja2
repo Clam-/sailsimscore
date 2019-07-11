@@ -8,16 +8,18 @@
     <meta name="author" content="Virtual Sailing">
     <!-- <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico"> -->
     <title>SailSim Scoreboard</title>
-    <link rel="canonical" href="">
+    <!-- TODO:Linkhere <link rel="canonical" href=""> -->
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/891208d80f.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
 
     <!-- Custom styles for this template -->
-    <link href="{{request.static_url('sailsimscore:static/theme.css')}}" rel="stylesheet">
+    <link href="{{'sailsimscore:static/theme.css'|static_url}}" rel="stylesheet">
   </head>
 
-  <body>
-
+  <body class="d-flex flex-column h-100">
+  <header>
     <nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
       <a class="navbar-brand" href="http://www.virtualsailing.com.au/">Virtual Sailing</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,41 +28,44 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          {{ nav_link(request.route_url('current_event'), "Current Event", "current") }}
-          {{ nav_link(request.route_url('list_event'), "Events", "events") }}
-          {{ nav_link(request.route_url('list_recording'), "Recordings", "recordings") }}
+          {{ nav_link('current_event'|route_url, "Current Event", "current") }}
+          {{ nav_link('list_event'|route_url, "Events", "events") }}
+          {{ nav_link('list_recording'|route_url, "Recordings", "recordings") }}
         </ul>
         <ul class="navbar-nav">
           {% if request.user %}
           <li class="nav-item my-auto">{{request.user.name}} - {{request.user.role.name}}</li>
-          {{ nav_link(request.route_url('home'), "My Account", "myaccount") }}
+          {{ nav_link('home'|route_url, "My Account", "myaccount") }}
           <li class="nav-item">
-            <a class="nav-link" href="{{request.route_url('logout')}}">Logout</a>
+            <a class="nav-link" href="{{ 'logout'|route_url }}">Logout</a>
           </li>
           {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{request.route_url('login')}}">Login</a>
-          </li>
+            {{ nav_link('login'|route_url, "Login", "myaccount") }}
+            {{ nav_link('create_user'|route_url, "Create user", "myaccount") }}
           {% endif %}
         </ul>
       </div>
     </nav>
+  </header>
 
-    <main role="main" class="container">
-      <div class="starter-template">
+  <main role="main" class="flex-shrink-0">
+    <div class="container">
 {% set flash = request.session.pop_flash() %}
 {% if flash %}
-        <div class="row"><div class="col">
+      <div class="row"><div class="col">
 {% for fi in flash %}
-          {{ makealert(fi) }}
+        {{ makealert(fi) }}
 {% endfor %}
-        </div></div>
+      </div></div>
 {% endif %}
-        {% block content %}{% endblock %}
-      </div>
-
-    </main><!-- /.container -->
-
+      {% block content %}{% endblock %}
+    </div>
+  </main><!-- /.container -->
+  <footer class="footer mt-auto py-3">
+    <div class="container">
+      <span class="text-muted">Some icons by <a href="https://fontawesome.com/">Fontawesome</a></span>
+    </div>
+  </footer>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

@@ -1,0 +1,16 @@
+{% from "macros.jinja" import text_box, button with context %}
+{% extends 'layout.jinja2' %}
+
+{% block title %}Create User - {% endblock title %}
+
+{% block content %}
+<h1>Create User</h1>
+<form action="{{ url }}" method="post"
+  oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+<input type="hidden" name="next" value="{{ next_url }}">
+{{ text_box("Username", "username", item.username) }}
+{{ text_box("Password", "password", "", type="password") }}
+{{ text_box("Confirm password", "password2", "", type="password") }}
+{{ button("Create User") }}
+</form>
+{% endblock content %}

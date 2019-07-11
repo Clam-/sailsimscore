@@ -42,6 +42,7 @@ def edit_event(request):
         item.active = 'activeCheck' in request.params
         item.current = 'currentCheck' in request.params
         item.notes = request.params['notes']
+        item.modip = request.remote_addr
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
     return dict(
@@ -56,8 +57,19 @@ def add_event(request):
     if 'form.submitted' in request.params:
         item.user = request.user
         item.name = request.params['eventName']
+        item.createdip = request.remote_addr
         request.dbsession.add(item)
         request.dbsession.flush()
         return edit_event(request)
     save_url = request.route_url('add_event')
     return dict(item=item, save_url=save_url)
+
+@view_config(route_name='delete_event', renderer='../templates/delete_item.jinja2',
+             permission='edit')
+def del_event(request):
+    item = request.context.item
+    del_url = request.route_url('delete_event', iid=item.id)
+    if 'form.submitted' in request.params:
+        request.dbsession.delete(item)
+        return HTTPFound(location=request.route_url('list_event'))
+    return dict(item=item, del_url=del_url)

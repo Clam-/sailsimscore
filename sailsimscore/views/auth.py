@@ -7,8 +7,31 @@ from pyramid.view import (
     forbidden_view_config,
     view_config,
 )
+from sqlalchemy.exc import IntegrityError
 
 from ..models import User
+from ..models.user import Role
+
+@view_config(route_name='create_user', renderer='../templates/create_user.jinja2')
+def create_user(request):
+    next_url = request.params.get('next', request.referrer)
+    if (not next_url) or next_url == request.route_url('create_user'):
+        next_url = request.route_url('home')
+    message = ''
+    item = User(name="")
+    item.role = Role.user
+    if 'form.submitted' in request.params:
+        item.name = request.params['username']
+        item.set_password(request.params['password'])
+        request.dbsession.add(item)
+        try: request.dbsession.flush()
+        except IntegrityError:
+            request.session.flash("d|Username already exists")
+            return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
+        headers = remember(request, item.id)
+        return HTTPFound(location=next_url, headers=headers)
+
+    return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
 
 
 @view_config(route_name='login', renderer='../templates/login.jinja2')

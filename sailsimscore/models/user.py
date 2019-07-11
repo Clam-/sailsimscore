@@ -1,38 +1,40 @@
 import bcrypt
 from enum import Enum as pyEnum
+from ipaddress import ip_address
 from sqlalchemy import (
     Column,
     Integer,
     Text,
-    Enum
+    Enum,
+    BINARY,
 )
 
 from .meta import Base
+from .ip import IPMixin
 
 class Role(pyEnum):
     admin = "A"
     user = "U"
     teamadmin = "T"
 
-class User(Base):
+class User(IPMixin, Base):
     """ The SQLAlchemy declarative model class for a User object. """
-    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False, unique=True)
     role = Column(Enum(Role), nullable=False, name="role")
     email = Column(Text)
-
-    password_hash = Column(Text)
+    password_hash = Column(BINARY(60))
 
     def set_password(self, pw):
-        pwhash = bcrypt.hashpw(pw.encode('utf8'), bcrypt.gensalt())
-        self.password_hash = pwhash.decode('utf8')
+        self.password_hash = bcrypt.hashpw(pw.encode('utf8'), bcrypt.gensalt())
 
     def check_password(self, pw):
         if self.password_hash is not None:
-            expected_hash = self.password_hash.encode('utf8')
-            return bcrypt.checkpw(pw.encode('utf8'), expected_hash)
+            return bcrypt.checkpw(pw.encode('utf8'), self.password_hash)
         return False
 
     def isAdmin(self):
         return self.role and self.role is Role.admin
+
+    @property
+    def desc(self): return self.name

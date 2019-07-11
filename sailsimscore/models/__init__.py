@@ -6,7 +6,7 @@ import zope.sqlalchemy
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
 from .boat import Boat  # flake8: noqa
-from .comment import Comment, CommentAssociation  # flake8: noqa
+from .comment import Comment, CommentRecAssoc, CommentEventAssoc  # flake8: noqa
 from .event import Event  # flake8: noqa
 from .recording import Recording  # flake8: noqa
 from .user import User  # flake8: noqa

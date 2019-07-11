@@ -1,4 +1,5 @@
 from enum import Enum as pyEnum
+from ipaddress import ip_address
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -13,6 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .meta import Base
+from .ip import IPMixin
 from .event import association_table
 
 class Course(pyEnum):
@@ -28,27 +30,38 @@ class Gusts(pyEnum):
     repeat = "E"
 
 #object/model/table for all recordings. Master list
-class Recording(Base):
+class Recording(IPMixin, Base):
     """ The SQLAlchemy declarative model class for a Recording object. """
-    __tablename__ = 'recordings'
     id = Column(Integer, primary_key=True)
     time = Column(Numeric)
     notes = Column(Text)
-    datetime = Column(DateTime)
+    _datetime = Column(DateTime)
     hash = Column(BINARY(20)) #hashlib.sha224(b"content").digest()
     bigcourse = Column(Boolean(name="bigcourse"))
+    laps = Column(Integer)
     modified = Column(Boolean(name="modified"))
     course = Column(Enum(Course), nullable=False, name="course")
     gusts = Column(Enum(Gusts), nullable=False, name="gusts")
     fileloc = Column(Text)
+    deleted = Column(Boolean(name="deleted"))
 
-    user_id = Column(ForeignKey('users.id'), nullable=False)
+    user_id = Column(ForeignKey('user.id'), nullable=False)
     user = relationship('User', backref='recordings')
 
-    boat_id = Column(ForeignKey('boats.id'), nullable=False)
+    boat_id = Column(ForeignKey('boat.id'), nullable=False)
     boat = relationship('Boat', backref='recordings')
 
-    comments = relationship("CommentAssociation")
+    comments = relationship("CommentRecAssoc")
 
     events = relationship("Event", secondary=association_table,
         back_populates="recordings")
+
+    @property
+    def desc(self):
+        return "{0}, {1}, {2}".format(self.course, self.datetime, self.notes)
+    @property
+    def datetime(self):
+        return self._datetime.isoformat(timespec='minutes')
+    @datetime.setter
+    def datetime(self, value):
+        self._datetime = value

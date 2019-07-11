@@ -3,21 +3,18 @@
 
 {% block content %}
 <div class="content">
-  <div class="row">
-    <div class="col"></div>
-    <div class="col">
-      <h2>Upload Recording</h2> <span>{{ "for %s" % item.event.name if item.event }} </span>
-    </div>
-    <div class="col my-auto"></div>
-  </div>
+  <h2>Upload Recording</h2>
+  <span>{{ "for %s" % item.event.name if item.event }} </span>
   <div class="row p-4">
   </div>
   <form action="{{save_url}}" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-      <label for="fileupload">Upload recording file</label>
-      <input type="file" class="form-control-file" id="fileupload" name="fileupload" accept=".sbp">
+    <div class="form-group row">
+      <label for="fileupload" class="col-sm-2 col-form-label">Upload recording file</label>
+      <div class="col-sm-4">
+        <input type="file" class="form-control-file" id="fileupload" name="fileupload" accept=".sbp">
+      </div>
     </div>
-  {{ text_area("Recording notes", "notes", item.notes) }}
+  {{ text_area("Recording notes", "notes", item.notes, rows=2) }}
   <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
 </form>
 </div>

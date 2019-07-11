@@ -1,16 +1,15 @@
 {% extends "layout.jinja2" %}
 
 {% block content %}
-<div class="content">
   <div class="row">
     <div class="col"></div>
     <div class="col"><h1>Events</h1></div>
     <div class="col my-auto">
 {% if request.user and request.user.isAdmin() %}
-      <a class="btn btn-primary" href="{{request.route_url('add_event')}}" role="button">New</a>
+      <a class="btn btn-primary" href="{{'add_event'|route_url}}" role="button">New</a>
 {% endif %}
     </div>
-  </row>
+  </div>
   <table class="table">
   <thead>
     <tr>
@@ -23,15 +22,15 @@
   </thead>
   <tbody>
     {% for item in items %}
+{% set l = request.route_url('view_event', iid=item.id) %}
     <tr>
-      <td>{{ '\u2714' if item.current }}</td>
-{% if request.user and request.user.isAdmin() %} <td>{{ "\u2714" if item.active }}</td> {% endif %}
-      <td>{{ item.name }}</td>
-      <td>{{ item.recordings|length }}</td>
+      <td><a href="{{l}}">{{ '\u2714' if item.current else "&nbsp;"|safe }}</a></td>
+{% if request.user and request.user.isAdmin() %} <td>{{ "\u2714" if item.active }}</a></td> {% endif %}
+      <td><a href="{{l}}">{{ item.name }}</a></td>
+      <td><a href="{{l}}">{{ item.recordings|length }}</a></td>
 {% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary btn-sm" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}
     </tr>
 {% endfor %}
   </tbody>
 </table>
-</div>
 {% endblock content %}

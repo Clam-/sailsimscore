@@ -1,0 +1,19 @@
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Delete {{item.__tablename__}}?</h1></div>
+    <div class="col"></div>
+  </div>
+  <div class="row">
+    <div class="col"></div>
+    <div class="col">{{item.desc}}</div>
+    <div class="col"></div>
+  </div>
+  <form action="{{del_url}}" method="post">
+    <button type="submit" class="btn btn-danger" name="form.submitted">Delete</button>
+  </form>
+</div>
+{% endblock content %}
