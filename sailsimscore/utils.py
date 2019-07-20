@@ -2,7 +2,7 @@ from ipaddress import ip_address
 from pyramid_jinja2.filters import route_url_filter, static_url_filter
 from jinja2 import Markup
 from markdown import markdown
-from os.path import relpath
+from os.path import join
 
 def ip_disp(ip):
     return str(ip_address(ip))
@@ -17,6 +17,5 @@ def includeme(config):
     jinjaenv.filters['markdown'] = lambda text: Markup(markdown(text, output_format="html5"))
 
     #download link maker
-    approot = config.get_settings()['approot']
-    jinjaenv.filters['downURL'] = \
-        lambda path: "sailsimscore:../{0}".format(relpath(path, approot))
+    prefix = config.get_settings()['recordingprefix']
+    jinjaenv.filters['downURL'] = lambda path: join(prefix, path)

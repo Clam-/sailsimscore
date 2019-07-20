@@ -6,7 +6,8 @@ from csv import reader
 from io import TextIOWrapper
 from tempfile import TemporaryFile
 from shutil import copyfileobj, move, copyfile
-from os.path import join
+from os.path import join, relpath
+from os import makedirs, error
 from hashlib import sha224
 from binascii import hexlify
 
@@ -97,11 +98,15 @@ def add_recording(request):
         # copy/move recording to final location and store
         f.seek(0)
         min, sec = divmod(item.time, 60)
-        loc = join(request.registry.settings["reclocation"],
-            "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, hexlify(item.hash).decode("utf-8")[:5]))
+        h = hexlify(item.hash).decode("utf-8")
+        folder = join(request.registry.settings["recoringstorage"], h[:2])
+        try: makedirs(folder)
+        except error: pass
+        loc = join(folder,
+            "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, h[:4]))
         with open(loc, "wb") as outfile:
             copyfileobj(f, outfile)
-        item.fileloc = loc
+        item.fileloc = relpath(loc, request.registry.settings["recoringstorage"])
 
         request.dbsession.add(item)
         request.dbsession.flush()
@@ -109,7 +114,6 @@ def add_recording(request):
         return HTTPFound(location=prev)
     save_url = request.route_url('add_recording') if not item.event else request.route_url('add_recording_id', eventid=item.event.id)
     return dict(item=item, save_url=save_url)
-
 
 def process_recording(f, dbsession):
     f.seek(0)
