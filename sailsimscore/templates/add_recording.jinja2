@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="content">
-  <h2>Upload Recording</h2>
+  <h2>{{"Submit/" if item.event}}Upload Recording</h2>
   <span>{{ "for %s" % item.event.name if item.event }} </span>
   <div class="row p-4">
   </div>

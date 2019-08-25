@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 40819c882b6b
+Revision ID: b9e8f6a5bc85
 Revises: 
-Create Date: 2019-07-12 13:58:21.362934
+Create Date: 2019-08-23 17:13:49.137856
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '40819c882b6b'
+revision = 'b9e8f6a5bc85'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -48,9 +48,15 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('order', sa.Integer(), nullable=True),
-    sa.Column('active', sa.Boolean(name='active'), nullable=True),
+    sa.Column('start', sa.DateTime(), nullable=True),
+    sa.Column('end', sa.DateTime(), nullable=True),
     sa.Column('current', sa.Boolean(name='current'), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('gusts', sa.Enum('none', 'random', 'repeat', 'any', name='gusts'), nullable=False),
+    sa.Column('rams', sa.Boolean(name='rams'), nullable=True),
+    sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
+    sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
+    sa.Column('laps', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_event_user_id_user')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_event'))
@@ -61,13 +67,15 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('time', sa.Numeric(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('_datetime', sa.DateTime(), nullable=True),
+    sa.Column('datetime', sa.DateTime(), nullable=True),
     sa.Column('hash', sa.BINARY(length=20), nullable=True),
     sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
+    sa.Column('rams', sa.Boolean(name='rams'), nullable=True),
     sa.Column('laps', sa.Integer(), nullable=True),
+    sa.Column('windspeed', sa.Integer(), nullable=True),
     sa.Column('modified', sa.Boolean(name='modified'), nullable=True),
     sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
-    sa.Column('gusts', sa.Enum('none', 'random', 'repeat', name='gusts'), nullable=False),
+    sa.Column('gusts', sa.Enum('none', 'random', 'repeat', 'any', name='gusts'), nullable=False),
     sa.Column('fileloc', sa.Text(), nullable=True),
     sa.Column('deleted', sa.Boolean(name='deleted'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),

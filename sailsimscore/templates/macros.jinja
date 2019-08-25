@@ -19,6 +19,15 @@
 </div>
 {% endmacro %}
 
+{% macro text_display(label, eid, value, type="text", row=True, size=2, disabled=False) %}
+<div class="form-group {{ "form-row" if row }}">
+  <label for="{{eid}}" {{ ('class="col-sm-%s col-form-label"' % size)|safe if row }}>{{label}}</label>
+{% if row %}<div class="{{ 'col-sm-%s' % (size+2)|string }}">{% endif %}
+  <input type="{{type}}" readonly class="form-control-plaintext" id="{{eid}}" value="{{value if value}}">
+{% if row %}</div>{% endif %}
+</div>
+{% endmacro %}
+
 {% macro check_box(label, eid, value, row=True, size=2) %}
 {% if row %}
 <div class="form-group row">
@@ -58,4 +67,64 @@
 {% macro makealert(s) %}
 {% set msg = s.split("|", 1) %}
 <p class="alert {{ BOOTSTRAP_ALERT[msg[0]] }}">{{msg[1]}}</p>
+{% endmacro %}
+
+
+{% macro radio(label, options, eid, value=None, size=2, inline=True) %}
+<fieldset class="form-group">
+  <div class="row">
+    <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
+    <div class="{{ 'col-sm-%s' % (size+1)|string }}">
+  {% for opt in options %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="{{eid}}" id="{{'eid-%s' % opt[1]}}" value="{{opt[1]}}" {{"checked" if value == opt[1] else ""}}>
+        <label class="form-check-label" for="{{'eid-%s' % opt[1]}}">
+          {{opt[0]}}
+        </label>
+      </div>
+  {% endfor %}
+    </div>
+  </div>
+</fieldset>
+{% endmacro %}
+
+{% macro datetime(label, eid, value, size=2) %}
+<div class="row">
+  <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
+  <div class="col-sm-6">
+      <div class="form-group">
+          <div class="input-group date" id="{{eid}}" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#{{eid}}"/>
+              <div class="input-group-append" data-target="#eid" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <script type="text/javascript">
+      $(function () {
+          $('#{{eid}}').datetimepicker();
+      });
+  </script>
+</div>
+{% endmacro %}
+{% macro datetime_inline(label, eid, value, size=2) %}
+<div style="overflow:hidden;">
+    <div class="form-group">
+        <div class="row">
+            <label for="{{eid}}" {{ ('class="col-sm-%s col-form-label"' % size)|safe }}>{{label}}</label>
+            <div class="col-md-8">
+                <div id="{{eid}}"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $('#{{eid}}').datetimepicker({
+                inline: true,
+                sideBySide: true
+            });
+        });
+    </script>
+</div>
 {% endmacro %}

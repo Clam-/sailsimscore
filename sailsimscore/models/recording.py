@@ -15,19 +15,8 @@ from sqlalchemy.orm import relationship
 
 from .meta import Base
 from .ip import IPMixin
-from .event import association_table
-
-class Course(pyEnum):
-    none = 0
-    CrossWind = 1
-    Trapezoidal = 2
-    Triangular = 3
-    UpDownWind = 4
-
-class Gusts(pyEnum):
-    none = "N"
-    random = "A"
-    repeat = "E"
+from .eventassoc import association_table
+from .recordingdata import Course, Gusts
 
 #object/model/table for all recordings. Master list
 class Recording(IPMixin, Base):
@@ -35,10 +24,12 @@ class Recording(IPMixin, Base):
     id = Column(Integer, primary_key=True)
     time = Column(Numeric)
     notes = Column(Text)
-    _datetime = Column(DateTime)
+    datetime = Column(DateTime)
     hash = Column(BINARY(20)) #hashlib.sha224(b"content").digest()
     bigcourse = Column(Boolean(name="bigcourse"))
+    rams = Column(Boolean(name="rams"))
     laps = Column(Integer)
+    windspeed = Column(Integer)
     modified = Column(Boolean(name="modified"))
     course = Column(Enum(Course), nullable=False, name="course")
     gusts = Column(Enum(Gusts), nullable=False, name="gusts")
@@ -59,9 +50,3 @@ class Recording(IPMixin, Base):
     @property
     def desc(self):
         return "{0}, {1}, {2}".format(self.course, self.datetime, self.notes)
-    @property
-    def datetime(self):
-        return self._datetime.isoformat(timespec='minutes')
-    @datetime.setter
-    def datetime(self, value):
-        self._datetime = value

@@ -58,7 +58,7 @@ def add_recording(request):
     if 'form.submitted' in request.params:
         item.user = request.user
         item.ip = request.remote_addr
-        if item.event and not item.event.active:
+        if item.event and datetime.utcnow() > item.event.end:
             request.session.flash("d|Sorry, event is no longer taking recordings.")
             raise HTTPFound(location=prev)
         f = TemporaryFile()
@@ -83,30 +83,32 @@ def add_recording(request):
         # check if recording exists already
         with request.dbsession.no_autoflush:
             if request.dbsession.query(Recording).filter(Recording.hash == item.hash).first():
-                request.session.flash("d|%s" % "Recording already uploaded")
+                request.session.flash("d|%s" % "Recording already uploaded. Cannot re-upload.")
                 raise HTTPFound(location=prev)
         # Add metadata minus note.
         item.bigcourse = metadata["bigcourse"]
         item.modified = metadata["modified"]
         item.course = metadata["coursetype"]
         item.laps = metadata["laps"]
-        g = Gusts.none
+        item.gusts = metadata["gusts"]
         if metadata["gustspeed"] > 0:
-            g = metadata["repeatablegusts"]
-        item.gusts = g
+            # spit warning out
+            request.session.flash("d|%s" % "Gust type turned off after recording started. Can't accept this recording. Set Gusts appropriately before starting the course.")
+            raise HTTPFound(location=prev)
+        items.rams = metadata["rams"]
         item.boat = metadata["boattype"]
         # copy/move recording to final location and store
         f.seek(0)
         min, sec = divmod(item.time, 60)
         h = hexlify(item.hash).decode("utf-8")
-        folder = join(request.registry.settings["recoringstorage"], h[:2])
+        folder = join(request.registry.settings["recordingstorage"], h[:2])
         try: makedirs(folder)
         except error: pass
         loc = join(folder,
             "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, h[:4]))
         with open(loc, "wb") as outfile:
             copyfileobj(f, outfile)
-        item.fileloc = relpath(loc, request.registry.settings["recoringstorage"])
+        item.fileloc = relpath(loc, request.registry.settings["recordingstorage"])
 
         request.dbsession.add(item)
         request.dbsession.flush()
@@ -146,10 +148,10 @@ def metadataError(s):
     return {"error" : True, "reason" : s}
 
 def version_1_header(header, metadata, dbsession):
-    if len(header) != 8:
+    if len(header) != 9:
         return metadataError("Unsupported recording version")
     else:
-        metadata["modified"] = True if header[1] == "1" else False
+        metadata["modified"] = header[1] == "1"
         with dbsession.no_autoflush:
             boat = dbsession.query(Boat, ).filter(Boat.id == int(header[2])).first()
             if not boat:
@@ -157,10 +159,11 @@ def version_1_header(header, metadata, dbsession):
             metadata["boattype"] = boat
         metadata["finishtime"] = 99999 if header[3] == "0" else float(header[3])
         metadata["coursetype"] = Course(int(header[4]))
-        metadata["bigcourse"] = True if header[5] == "1" else False
+        metadata["bigcourse"] = header[5] == "1"
         metadata["laps"] = int(header[6])
         # need to read recording file to determine if Gusts were on.
-        metadata["repeatablegusts"] = Gusts.repeat if header[6] == "1" else Gusts.random
+        metadata["gusts"] = Gusts(int(header[7]))
+        metadata["rams"] = header[8] == "1"
     return metadata
 
 def version_1_rows(csvreader, metadata, dbsession):
