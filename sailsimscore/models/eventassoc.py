@@ -12,3 +12,8 @@ association_table = Table('eventrecordings', Base.metadata,
     Column('event_id', Integer, ForeignKey('event.id')),
     Column('recording_id', Integer, ForeignKey('recording.id'))
 )
+
+allowed_table = Table('allowedboats', Base.metadata,
+    Column('event_id', Integer, ForeignKey('event.id')),
+    Column('boat_id', Integer, ForeignKey('boat.id'))
+)

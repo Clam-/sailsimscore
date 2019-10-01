@@ -1,0 +1,16 @@
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"><h1 class="text-center">Remove Recording?</h1></div>
+  </div>
+  <div class="row">
+    <div class="col">Are you sure you want to remove the recording from "{{event.name}}" event?
+      (The recording will still be available in your list of recordings.)</div>
+  </div>
+  <form action="{{del_url}}" method="post">
+    <button type="submit" class="btn btn-danger" name="form.submitted">Remove</button>
+  </form>
+</div>
+{% endblock content %}

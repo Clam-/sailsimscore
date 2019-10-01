@@ -1,3 +1,4 @@
+{% from "macros.jinja" import timeclass %}
 {% extends "layout.jinja2" %}
 
 {% block content %}
@@ -13,8 +14,9 @@
   <table class="table">
   <thead>
     <tr>
-      <th scope="col">Current</th>
-{% if request.user and request.user.isAdmin() %} <th scope="col">Active</th> {% endif %}
+      <th scope="col">Pinned</th>
+      <th scope="col">Start</th>
+      <th scope="col">End</th>
       <th scope="col">Event name</th>
       <th scope="col">No. of entries</th>
 {% if request.user and request.user.isAdmin() %} <th scope="col">Edit</th> {% endif %}
@@ -23,9 +25,11 @@
   <tbody>
     {% for item in items %}
 {% set l = request.route_url('view_event', iid=item.id) %}
+{% set l = request.route_url('view_event', iid=item.id) %}
     <tr>
       <td><a href="{{l}}">{{ '\u2714' if item.current else "&nbsp;"|safe }}</a></td>
-{% if request.user and request.user.isAdmin() %} <td>{{ "\u2714" if item.active }}</a></td> {% endif %}
+      <td class="{{timeclass(now, item)}}"><a href="{{l}}"><span class="timespec">{{ item.start }}</span></a></td>
+      <td class="{{timeclass(now, item, False)}}"><a href="{{l}}"><span class="timespec">{{ item.end }}</span></a></td>
       <td><a href="{{l}}">{{ item.name }}</a></td>
       <td><a href="{{l}}">{{ item.recordings|length }}</a></td>
 {% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary btn-sm" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}

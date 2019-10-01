@@ -1,4 +1,5 @@
 from enum import Enum as pyEnum
+from decimal import Decimal
 
 # Make sure if modifying these constants to modify them in the templates
 class Course(pyEnum):
@@ -13,3 +14,6 @@ class Gusts(pyEnum):
     random = 1000
     repeat = 1001
     any = -1
+
+KNOTS_TO_M = Decimal("0.5144")
+M_TO_KNOTS = Decimal("1.9438") #This doesn't quite line up? Divide above instead.

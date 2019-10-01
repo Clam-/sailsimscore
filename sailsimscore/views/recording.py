@@ -15,7 +15,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from ..models import Recording, Event, Boat
-from ..models.recording import Course, Gusts
+from ..models.recording import Course, Gusts, KNOTS_TO_M
 
 @view_config(route_name='list_recording', renderer='../templates/list_recording.jinja2')
 def list_recording(request):
@@ -40,8 +40,56 @@ def edit_recording(request):
         return HTTPFound(location=next_url)
     return dict(
         item=item,
-        save_url=request.route_url('edit_event', iid=item.id),
+        save_url=request.route_url('edit_recording', iid=item.id),
         )
+
+@view_config(route_name='add_recording_to_event', permission='create')
+def add_recording_to_event(request):
+    eid = request.matchdict['eid']
+    recording = request.context.item
+    event = request.dbsession.query(Event).filter_by(id=eid).first()
+    if not event:
+        request.session.flash("d|Event not found.")
+        raise HTTPNotFound
+    if not recording:
+        request.session.flash("d|Recording not found.")
+        raise HTTPNotFound
+    prev = request.route_url("view_event", iid=event.id)
+    return add_recording_wcheck(request, event, recording, prev)
+
+def add_recording_wcheck(request, event, recording, prev):
+    if not event.allowprevious:
+        request.session.flash("d|Previous recordings not allowed.")
+        raise HTTPFound(location=prev)
+    if recording.datetime < event.start:
+        request.session.flash("d|Recording submitted before event start.")
+        raise HTTPFound(location=prev)
+    if recording.datetime > event.end:
+        request.session.flash("d|Recording submitted after event end.")
+        raise HTTPFound(location=prev)
+    if recording.windspeed > event.windspeed:
+        request.session.flash("d|Recording windspeed too high.")
+        raise HTTPFound(location=prev)
+    if recording.bigcourse != event.bigcourse:
+        request.session.flash("d|Wrong course size set.")
+        raise HTTPFound(location=prev)
+    if recording in event.recordings:
+        request.session.flash("d|Recording already submitted.")
+        raise HTTPFound(location=prev)
+    if event.gusts != Gusts.any and recording.gusts !=event.gusts:
+        request.session.flash("d|Recording gust setting incorrect.")
+        raise HTTPFound(location=prev)
+    if event.rams and recording.rams != event.rams:
+        request.session.flash("d|Recording ram setting incorrect.")
+        raise HTTPFound(location=prev)
+    if event.allowed_boats and recording.boat not in event.allowedboats:
+        request.session.flash("d|Recording boat setting incorrect.")
+        raise HTTPFound(location=prev)
+    if event.laps > 0 and recording.laps != event.laps:
+        request.session.flash("d|Recording boat setting incorrect.")
+        raise HTTPFound(location=prev)
+    event.recordings.append(recording)
+    return HTTPFound(location=prev)
 
 @view_config(route_name='add_recording_id', renderer='../templates/add_recording.jinja2',
              permission='create')
@@ -50,15 +98,31 @@ def edit_recording(request):
 def add_recording(request):
     item = request.context.item
     prev = request.route_url("list_recording")
+    event = False
     if request.matchdict['eventid']:
         event = request.dbsession.query(Event).filter_by(id=request.matchdict['eventid']).first()
-        if item is None: raise HTTPNotFound
-        item.event = event
+        if event is None:
+            request.session.flash("d|Event not found.")
+            raise HTTPNotFound
         prev = request.route_url("view_event", iid=event.id)
+    recordings = None
+    if 'form.submitted' not in request.params:
+        # fetch available recordings for selection
+        if event and event.allowprevious:
+            recordings = request.dbsession.query(Recording).filter(Recording.user==request.user).\
+                filter(Recording.datetime<=event.end).filter(Recording.datetime>=event.start).\
+                filter(Recording.windspeed<=event.windspeed).\
+                filter(Recording.bigcourse==event.bigcourse).\
+                filter(~Recording.events.any(Event.id == event.id))
+            if event.gusts != Gusts.any: recordings = recordings.filter(Recording.gusts==event.gusts)
+            if event.rams: recordings = recordings.filter(Recording.rams==event.rams)
+            if event.allowed_boats: recordings = recordings.filter(Recording.boat in event.allowedboats)
+            if event.laps > 0: recordings = recordings.filter(Recording.laps==event.laps)
+
     if 'form.submitted' in request.params:
         item.user = request.user
         item.ip = request.remote_addr
-        if item.event and datetime.utcnow() > item.event.end:
+        if event and (datetime.utcnow() > event.end):
             request.session.flash("d|Sorry, event is no longer taking recordings.")
             raise HTTPFound(location=prev)
         f = TemporaryFile()
@@ -91,11 +155,12 @@ def add_recording(request):
         item.course = metadata["coursetype"]
         item.laps = metadata["laps"]
         item.gusts = metadata["gusts"]
-        if metadata["gustspeed"] > 0:
+        if item.gusts == Gusts.none and metadata["gustspeed"] > 0:
             # spit warning out
-            request.session.flash("d|%s" % "Gust type turned off after recording started. Can't accept this recording. Set Gusts appropriately before starting the course.")
+            request.session.flash("d|%s" % "Gust type changed after recording started. Can't accept this recording. Set Gusts appropriately before starting the course.")
             raise HTTPFound(location=prev)
-        items.rams = metadata["rams"]
+        item.windspeed = metadata["windspeed"]
+        item.rams = metadata["rams"]
         item.boat = metadata["boattype"]
         # copy/move recording to final location and store
         f.seek(0)
@@ -112,10 +177,11 @@ def add_recording(request):
 
         request.dbsession.add(item)
         request.dbsession.flush()
-        if item.event: item.event.recordings.append(item)
+        if event:
+            return add_recording_wcheck(request, event, item, prev)
         return HTTPFound(location=prev)
-    save_url = request.route_url('add_recording') if not item.event else request.route_url('add_recording_id', eventid=item.event.id)
-    return dict(item=item, save_url=save_url)
+    save_url = request.route_url('add_recording') if not event else request.route_url('add_recording_id', eventid=event.id)
+    return dict(item=item, save_url=save_url, event=event, recordings=recordings)
 
 def process_recording(f, dbsession):
     f.seek(0)
@@ -153,7 +219,7 @@ def version_1_header(header, metadata, dbsession):
     else:
         metadata["modified"] = header[1] == "1"
         with dbsession.no_autoflush:
-            boat = dbsession.query(Boat, ).filter(Boat.id == int(header[2])).first()
+            boat = dbsession.query(Boat).filter(Boat.id == int(header[2])).first()
             if not boat:
                 return metadataError("Unsupported Boat Type (%s)" % header[2])
             metadata["boattype"] = boat

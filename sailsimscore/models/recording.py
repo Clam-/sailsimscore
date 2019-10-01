@@ -15,11 +15,12 @@ from sqlalchemy.orm import relationship
 
 from .meta import Base
 from .ip import IPMixin
+from .windspeed import WindSpeedMixin
 from .eventassoc import association_table
-from .recordingdata import Course, Gusts
+from .recordingdata import Course, Gusts, KNOTS_TO_M
 
 #object/model/table for all recordings. Master list
-class Recording(IPMixin, Base):
+class Recording(IPMixin, WindSpeedMixin, Base):
     """ The SQLAlchemy declarative model class for a Recording object. """
     id = Column(Integer, primary_key=True)
     time = Column(Numeric)
@@ -29,7 +30,7 @@ class Recording(IPMixin, Base):
     bigcourse = Column(Boolean(name="bigcourse"))
     rams = Column(Boolean(name="rams"))
     laps = Column(Integer)
-    windspeed = Column(Integer)
+    windspeed = Column(Numeric)
     modified = Column(Boolean(name="modified"))
     course = Column(Enum(Course), nullable=False, name="course")
     gusts = Column(Enum(Gusts), nullable=False, name="gusts")

@@ -8,7 +8,8 @@
 <form action="{{ url }}" method="post"
   oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
 <input type="hidden" name="next" value="{{ next_url }}">
-{{ text_box("Username", "username", item.username) }}
+{{ text_box("Username", "username", item.name) }}
+{{ text_box("Email", "email", item.email) }}
 {{ text_box("Password", "password", "", type="password") }}
 {{ text_box("Confirm password", "password2", "", type="password") }}
 {{ button("Create User") }}

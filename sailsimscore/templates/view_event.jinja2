@@ -6,16 +6,31 @@
     <div class="col"></div>
     <div class="col"><h1>{{item.name}}</h1></div>
     <div class="col my-auto">
-{% if item.active and request.user %}
+{% if item.active() and request.user %}
       <a class="btn btn-outline-primary" href="{{'add_recording_id'|route_url(eventid=item.id) }}" role="button">Add Recording</a>
 {% endif %}
 {% if request.user and request.user.isAdmin() %}
-      <a class="btn btn-primary" href="{{'edit_event'|route_url(iid=item.id)}}" role="button">Edit</a>
+      <a class="btn btn-primary" href="{{edit_url}}" role="button">Edit</a>
 {% endif %}
     </div>
   </div>
+  <div class="row">
+    <div class="col">
+      Event Start: <span class="timespec">{{item.start}}</span><br>
+      Course: {{item.course.name}} {{"- Big" if item.bigcourse}}<br>
+      Windspeed: <= {{item.windspeedknt}}<br>
+      Gusts: {{item.gusts.name}}<br>
+    </div>
+    <div class="col">
+      Event End: <span class="timespec">{{item.end}}</span><br>
+      Laps: {{item.laps}}<br>
+      Rams: {{"Required" if item.rams else "Optional"}}<br>
+      Allowed boats: {{", ".join(item.allowed_boats) if item.allowed_boats else "Any"}}
+    </div>
+
+  </div>
   <div class="row"><div class="col">
-    {{notes|markdown}}
+    {{item.notes|markdown}}
   </div></div>
   <table class="table">
   <thead>
@@ -36,6 +51,8 @@
   <tbody>
 {% for r in item.recordings %}
 {% set l = 'view_recording'|route_url(iid=r.id) %}
+{% set lr = 'event_rm_recording'|route_url(iid=r.id, eid=item.id) %}
+{% set le = 'edit_recording'|route_url(iid=r.id) %}
     <tr>
       <td class="align-middle" scope="row"><a href="{{l}}">{{ loop.index }}</a></td>
       <td class="align-middle"><a href="{{l}}">{{ r.time|round(3) }}</a></td>
@@ -52,21 +69,12 @@
 {% endif %}
       <td class="align-middle"><a href="{{l}}">{{ '\u2714' if r.modified else "&nbsp;"|safe }}</a></td>
       <td class="align-middle"><a href="{{l}}">
-{% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-primary" href="#">Edit</a> {% endif %}
-{% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-warning" href="#"><i class="far fa-trash-alt"></i></a>{% endif %}
+{% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-primary" href="{{le}}">Edit</a> {% endif %}
+{% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-warning" href="{{lr}}"><i class="far fa-trash-alt"></i></a>{% endif %}
       </td>
     </tr>
 {% endfor %}
   </tbody>
 </table>
 </div>
-<script type="text/javascript">
-  function formatdate() {
-    moment.defaultFormat = "YYYY/MM/DD hh:mm A";
-    for (let elem of document.getElementsByClassName("timespec")) {
-      elem.innerText = moment.utc(elem.innerText).local().format()
-    };
-  }
-  window.addEventListener("DOMContentLoaded", formatdate);
-</script>
 {% endblock content %}

@@ -1,8 +1,8 @@
 """init
 
-Revision ID: b9e8f6a5bc85
+Revision ID: 70260f83992b
 Revises: 
-Create Date: 2019-08-23 17:13:49.137856
+Create Date: 2019-10-01 15:45:49.957919
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b9e8f6a5bc85'
+revision = '70260f83992b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -57,6 +57,8 @@ def upgrade():
     sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
     sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
     sa.Column('laps', sa.Integer(), nullable=True),
+    sa.Column('allowprevious', sa.Boolean(name='allowprevious'), nullable=True),
+    sa.Column('windspeed', sa.Numeric(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_event_user_id_user')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_event'))
@@ -72,7 +74,7 @@ def upgrade():
     sa.Column('bigcourse', sa.Boolean(name='bigcourse'), nullable=True),
     sa.Column('rams', sa.Boolean(name='rams'), nullable=True),
     sa.Column('laps', sa.Integer(), nullable=True),
-    sa.Column('windspeed', sa.Integer(), nullable=True),
+    sa.Column('windspeed', sa.Numeric(), nullable=True),
     sa.Column('modified', sa.Boolean(name='modified'), nullable=True),
     sa.Column('course', sa.Enum('none', 'CrossWind', 'Trapezoidal', 'Triangular', 'UpDownWind', name='course'), nullable=False),
     sa.Column('gusts', sa.Enum('none', 'random', 'repeat', 'any', name='gusts'), nullable=False),
@@ -83,6 +85,12 @@ def upgrade():
     sa.ForeignKeyConstraint(['boat_id'], ['boat.id'], name=op.f('fk_recording_boat_id_boat')),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_recording_user_id_user')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_recording'))
+    )
+    op.create_table('allowedboats',
+    sa.Column('event_id', sa.Integer(), nullable=True),
+    sa.Column('boat_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['boat_id'], ['boat.id'], name=op.f('fk_allowedboats_boat_id_boat')),
+    sa.ForeignKeyConstraint(['event_id'], ['event.id'], name=op.f('fk_allowedboats_event_id_event'))
     )
     op.create_table('commenteventassoc',
     sa.Column('event_id', sa.Integer(), nullable=False),
@@ -113,6 +121,7 @@ def downgrade():
     op.drop_table('eventrecordings')
     op.drop_table('commentrecassoc')
     op.drop_table('commenteventassoc')
+    op.drop_table('allowedboats')
     op.drop_table('recording')
     op.drop_table('event')
     op.drop_table('comment')

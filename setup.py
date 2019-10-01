@@ -22,7 +22,8 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'Markdown',
-    'pyramid_nacl_session'
+    'pyramid_nacl_session',
+    'python-dateutil'
 ]
 
 tests_require = [

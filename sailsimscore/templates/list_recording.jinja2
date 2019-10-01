@@ -18,6 +18,7 @@
       <th scope="col">Time</th>
       <th scope="col">Boat</th>
       <th scope="col">Course</th>
+      <th scope="col">Wind Speed</th>
       <th scope="col">Laps</th>
       <th scope="col">Uploaded</th>
       <th scope="col">User</th>
@@ -35,6 +36,7 @@
       <td><a href="{{l}}">{{ item.time }}</a></td>
       <td><a href="{{l}}">{{ item.boat.name }}</a></td>
       <td><a href="{{l}}">{{ item.course }} - {{ "Big" if item.bigcourse }}</a></td>
+      <td><a href="{{l}}">{{ item.windspeed }}</a></td>
       <td><a href="{{l}}">{{ item.laps }}</a></td>
       <td><a href="{{l}}">{{ item.datetime }}</a></td>
       <td><a href="{{l}}">{{ item.user.name }}</a></td>

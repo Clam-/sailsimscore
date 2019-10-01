@@ -22,6 +22,9 @@ def create_user(request):
     item.role = Role.user
     if 'form.submitted' in request.params:
         item.name = request.params['username']
+        if not item.name:
+            request.session.flash("d|Require username")
+            return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
         item.set_password(request.params['password'])
         request.dbsession.add(item)
         try: request.dbsession.flush()

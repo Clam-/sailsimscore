@@ -24,9 +24,11 @@ def includeme(config):
     config.add_route('view_event', '/event/{iid}', factory=event_factory)
     config.add_route('edit_event', '/event/{iid}/edit', factory=event_factory)
     config.add_route('delete_event', '/event/{iid}/delete', factory=event_factory)
+    config.add_route('event_rm_recording', '/event/{eid}/remove/{iid}', factory=recording_factory)
 
     config.add_route('list_recording', '/recording')
     config.add_route('add_recording_id', '/recording/new/{eventid}', factory=new_recording_factory)
+    config.add_route('add_recording_to_event', '/recording/add/{eid}/{iid}', factory=recording_factory)
     config.add_route('add_recording', '/recording/new', factory=new_recording_factory)
     config.add_route('view_recording', '/recording/{iid}', factory=recording_factory)
     config.add_route('edit_recording', '/recording/{iid}/edit', factory=recording_factory)

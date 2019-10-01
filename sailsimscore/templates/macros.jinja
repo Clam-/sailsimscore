@@ -108,7 +108,7 @@
   </script>
 </div>
 {% endmacro %}
-{% macro datetime_inline(label, eid, value, size=2) %}
+{% macro datetime_inline(label, eid, value, size=2, minfield="", maxfield="") %}
 <div style="overflow:hidden;">
     <div class="form-group">
         <div class="row">
@@ -118,13 +118,28 @@
             </div>
         </div>
     </div>
+    <input id="{{eid}}-dt" name="{{eid}}-dt" type="hidden" value="{{value if value}}">
     <script type="text/javascript">
         $(function () {
             $('#{{eid}}').datetimepicker({
                 inline: true,
-                sideBySide: true
+                sideBySide: true,
+{% if value %}  date: moment.utc("{{ value|dtiso}}").local() {% endif %}
+            });
+            $('#{{eid}}').on("change.datetimepicker", function (e) {
+              $('#{{eid}}-dt').val(e.date.utc().format())
+{% if minfield %}$('#{{minfield}}').datetimepicker('minDate', e.date){% endif %}
+{% if maxfield %}$('#{{maxfield}}').datetimepicker('maxDate', e.date){% endif %}
             });
         });
     </script>
 </div>
+{% endmacro %}
+
+{% macro timeclass(now, e, start=True) %}
+{% if start %}
+{% if now < e.start %}timebad{% elif now > e.end %}{% else %}timegood{% endif %}
+{% else %}
+{% if now > e.end %}timebad{% elif now < e.start %}{% else %}timegood{% endif %}
+{% endif %}
 {% endmacro %}
