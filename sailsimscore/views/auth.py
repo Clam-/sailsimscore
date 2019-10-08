@@ -21,10 +21,27 @@ def create_user(request):
     item = User(name="")
     item.role = Role.user
     if 'form.submitted' in request.params:
-        item.name = request.params['username']
-        if not item.name:
-            request.session.flash("d|Require username")
-            return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
+        url=request.route_url('create_user')
+
+        name = request.params['name']
+        email = request.params['email']
+        if not name:
+            request.session.flash("d|Require Display Name")
+            return dict(item=item, url=url, next_url=next_url)
+        if not email:
+            request.session.flash("d|Require Email")
+            return dict(item=item, url=url, next_url=next_url)
+        item.setEmail(email)
+        try: request.dbsession.flush()
+        except IntegrityError:
+            request.session.flash("d|Email already in use")
+            return dict(item=item, url=url, next_url=next_url)
+        item.setName(name)
+        try: request.dbsession.flush()
+        except IntegrityError:
+            request.session.flash("d|Display Name in use")
+            return dict(item=item, url=url, next_url=next_url)
+
         item.set_password(request.params['password'])
         request.dbsession.add(item)
         try: request.dbsession.flush()
@@ -33,9 +50,7 @@ def create_user(request):
             return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
         headers = remember(request, item.id)
         return HTTPFound(location=next_url, headers=headers)
-
     return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
-
 
 @view_config(route_name='login', renderer='../templates/login.jinja2')
 def login(request):
@@ -47,7 +62,7 @@ def login(request):
     if 'form.submitted' in request.params:
         login = request.params['login']
         password = request.params['password']
-        user = request.dbsession.query(User).filter_by(name=login).first()
+        user = request.dbsession.query(User).filter_by(email=login).first()
         if user is not None and user.check_password(password):
             headers = remember(request, user.id)
             return HTTPFound(location=next_url, headers=headers)

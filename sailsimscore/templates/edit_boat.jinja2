@@ -1,0 +1,24 @@
+{% from "macros.jinja" import text_box, text_display, with context %}
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"><h1 class='text-center'>Boat - {{"New" if item.id is none else item.id}}</h1>
+{% if (request.user and request.user.isAdmin()) and item.id %}
+      <a class="btn btn-danger float-right" href="{{request.route_url('delete_boat', iid=item.id)}}" role="button">Delete</a>
+{% endif %}
+    </div>
+  </div>
+  <form action="{{save_url}}" method="post">
+{% if item.id is None %}
+  {{ text_box("ID", "boat_id", item.id) }}
+{% else %}
+  {{ text_display("ID", "boat_id", item.id) }}
+{% endif %}
+  {{ text_box("Name", "boat_name", item.name) }}
+  {{ text_box("Resource", "boat_res", item.resource) }}
+  <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
+</form>
+</div>
+{% endblock content %}

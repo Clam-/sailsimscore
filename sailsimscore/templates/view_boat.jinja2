@@ -1,0 +1,22 @@
+{% extends "layout.jinja2" %}
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Boat</h1></div>
+    <div class="col my-auto">
+{% if (request.user and request.user.isAdmin()) or (request.user and item.user == request.user) %}
+      <a class="btn btn-primary" href="{{'edit_boat'|route_url(iid=item.id)}}" role="button">Edit</a>
+{% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <p>Boat: {{item.name}} ({{item.id}})<br>
+        <a href="{{'list_recording'|route_url(_query={'boat':item.id})}}">View recordings</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock content %}

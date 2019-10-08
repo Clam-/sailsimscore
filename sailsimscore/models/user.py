@@ -20,9 +20,10 @@ class Role(pyEnum):
 class User(IPMixin, Base):
     """ The SQLAlchemy declarative model class for a User object. """
     id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False, unique=True)
+    name = Column(Text, nullable=False)
+    _name = Column(Text, nullable=False, unique=True)
     role = Column(Enum(Role), nullable=False, name="role")
-    email = Column(Text)
+    email = Column(Text, unique=True)
     password_hash = Column(BINARY(60))
 
     def set_password(self, pw):
@@ -38,3 +39,10 @@ class User(IPMixin, Base):
 
     @property
     def desc(self): return self.name
+
+    def setEmail(self, email):
+        return self.email = email.lower()
+
+    def setName(self, name):
+        self.name = name
+        self._name = name.lower()

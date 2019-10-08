@@ -17,6 +17,12 @@ def includeme(config):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('create_user', '/create')
+    config.add_route('list_users', '/user')
+    config.add_route('view_user', '/user/{iid}')
+    config.add_route('edit_user', '/user/{iid}')
+
+    config.add_route('my_account', '/account')
+    config.add_route('my_recordings', '/account/recordings')
 
     config.add_route('current_event', '/current')
     config.add_route('list_event', '/event')

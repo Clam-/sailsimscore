@@ -72,6 +72,8 @@ def edit_event(request):
         item.modip = request.remote_addr
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
+    # get boat list for restriction selection
+    boats = request.dbsession.query(Boat).all()
     return dict(
         item=item,
         save_url=request.route_url('edit_event', iid=item.id),

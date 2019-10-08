@@ -1,0 +1,36 @@
+{% from "macros.jinja" import timeclass %}
+{% extends "layout.jinja2" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col"></div>
+    <div class="col"><h1>Boats</h1></div>
+    <div class="col my-auto">
+{% if request.user and request.user.isAdmin() %}
+      <a class="btn btn-primary" href="{{'add_boat'|route_url}}" role="button">New</a>
+{% endif %}
+    </div>
+  </div>
+  <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Name</th>
+      <th scope="col">No. Recordings</th>
+{% if request.user and request.user.isAdmin() %} <th scope="col">Edit</th> {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+{% set l = request.route_url('view_boat', iid=item.id) %}
+{% set lr = request.route_url('list_recording', _query={'boat':item.id}) %}
+    <tr>
+      <td><a href="{{l}}">{{ item.id }}</a></td>
+      <td><a href="{{l}}">{{ item.name }}</a></td>
+      <td><a href="{{lr}}">{{ item.recordings|length }} (View)</a></td>
+{% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary btn-sm" href="{{'edit_boat'|route_url(iid=item.id)}}">Edit</a></td> {% endif %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endblock content %}

@@ -7,7 +7,7 @@
 <h1>Login</h1>
 <form action="{{ url }}" method="post">
 <input type="hidden" name="next" value="{{ next_url }}">
-{{ text_box("Username", "login", login) }}
+{{ text_box("Email", "login", login) }}
 {{ text_box("Password", "password", "", type="password") }}
 <div class="form-group">
     <button type="submit" name="form.submitted" value="Log In" class="btn btn-primary">Log In</button>
