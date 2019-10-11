@@ -34,7 +34,7 @@ def view_recording(request):
 def edit_recording(request):
     item = request.context.item
     if 'form.submitted' in request.params:
-        item.notes = request.params['notes']
+        item.notes = request.params.get('notes')
         #Events submitted
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)

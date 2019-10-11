@@ -10,7 +10,7 @@
 </li>
 {% endmacro %}
 
-{% macro text_box(label, eid, value, type="text", row=True, size=2, disabled=False) %}
+{% macro text_box(label, eid, value, type="text", row=True, size=3, disabled=False) %}
 <div class="form-group {{ "form-row" if row }}">
   <label for="{{eid}}" {{ ('class="col-sm-%s col-form-label"' % size)|safe if row }}>{{label}}</label>
 {% if row %}<div class="{{ 'col-sm-%s' % (size+2)|string }}">{% endif %}
@@ -19,7 +19,7 @@
 </div>
 {% endmacro %}
 
-{% macro text_display(label, eid, value, type="text", row=True, size=2, disabled=False) %}
+{% macro text_display(label, eid, value, type="text", row=True, size=3, disabled=False) %}
 <div class="form-group {{ "form-row" if row }}">
   <label for="{{eid}}" {{ ('class="col-sm-%s col-form-label"' % size)|safe if row }}>{{label}}</label>
 {% if row %}<div class="{{ 'col-sm-%s' % (size+2)|string }}">{% endif %}
@@ -28,10 +28,11 @@
 </div>
 {% endmacro %}
 
-{% macro check_box(label, eid, value, row=True, size=2) %}
+{% macro check_box(label, eid, value, row=True, size=3, title="") %}
 {% if row %}
 <div class="form-group row">
-  <div class="{{ 'col-sm-%s' % (size)|string }}"></div>
+<!--  <div class="{{ 'col-sm-%s' % (size)|string }}"></div> -->
+  <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{title}}</legend>
   <div class="{{ 'col-sm-%s' % (size+2)|string }}">
     <div class="form-check">
       <input class="form-check-input" type="checkbox" id="{{eid}}" name="{{eid}}" {{"checked" if value}}>
@@ -47,7 +48,7 @@
 {% endif %}
 {% endmacro %}
 
-{% macro text_area(label, eid, value, rows=5, row=True, size=2) %}
+{% macro text_area(label, eid, value, rows=5, row=True, size=3) %}
 <div class="form-group {{ "form-row" if row }}">
   <label for="noteText" {{ ('class="col-sm-%s col-form-label"' % size)|safe if row }}>{{label}}</label>
 {% if row %}<div class="{{ 'col-sm-%s' % (size+2)|string }}">{% endif %}
@@ -56,7 +57,7 @@
 </div>
 {% endmacro %}
 
-{% macro button(label, name="form.submitted", row=True, size=2) %}
+{% macro button(label, name="form.submitted", row=True, size=3) %}
 <div class="form-group {{ "form-row" if row }}">
 {% if row %}<div class="{{ 'col-sm-%s' % (size+1)|string }}">{% endif %}
     <button type="submit" name="{{name}}" value="{{label}}" class="btn btn-primary">{{label}}</button>
@@ -70,14 +71,14 @@
 {% endmacro %}
 
 
-{% macro radio(label, options, eid, value=None, size=2, inline=True) %}
+{% macro multi_select(label, options, eid, value=None, size=3, inline=True, type="radio") %}
 <fieldset class="form-group">
   <div class="row">
     <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
-    <div class="{{ 'col-sm-%s' % (size+1)|string }}">
+    <div class="{{ 'col-sm-%s' % (size+3)|string }}">
   {% for opt in options %}
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="{{eid}}" id="{{'eid-%s' % opt[1]}}" value="{{opt[1]}}" {{"checked" if value == opt[1] else ""}}>
+        <input class="form-check-input" type="{{type}}" name="{{eid}}" id="{{'eid-%s' % opt[1]}}" value="{{opt[1]}}" {{"checked" if opt[1] in value else ""}}>
         <label class="form-check-label" for="{{'eid-%s' % opt[1]}}">
           {{opt[0]}}
         </label>
@@ -88,7 +89,7 @@
 </fieldset>
 {% endmacro %}
 
-{% macro datetime(label, eid, value, size=2) %}
+{% macro datetime(label, eid, value, size=3) %}
 <div class="row">
   <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
   <div class="col-sm-6">
@@ -108,7 +109,7 @@
   </script>
 </div>
 {% endmacro %}
-{% macro datetime_inline(label, eid, value, size=2, minfield="", maxfield="") %}
+{% macro datetime_inline(label, eid, value, size=3, minfield="", maxfield="") %}
 <div style="overflow:hidden;">
     <div class="form-group">
         <div class="row">

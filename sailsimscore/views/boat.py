@@ -25,10 +25,11 @@ def edit_boat(request):
     else:
         edit_url = request.route_url("add_boat")
     if 'form.submitted' in request.params:
-        item.name = request.params['boat_name']
-        item.resource = request.params['boat_res']
+        item.name = request.params.get('boat_name')
+        item.resource = request.params.get('boat_res')
         if not item.name:
             request.session.flash("d|Require name")
+            request.dbsession.rollback()
             return dict(item=item, url=edit_url)
         return HTTPFound(location=request.route_url('view_boat', iid=item.id))
     return dict(item=item, url=edit_url)
@@ -41,12 +42,14 @@ def add_boat(request):
     if 'form.submitted' in request.params:
         bid = None
         try:
-            bid = int(request.params['boat_id'])
+            bid = int(request.params.get('boat_id'))
         except ValueError:
             request.session.flash("d|Require numerical ID")
+            request.dbsession.rollback()
             return dict(item=item, url=save_url)
         if not bid:
             request.session.flash("d|Require numerical ID")
+            request.dbsession.rollback()
             return dict(item=item, url=save_url)
         request.dbsession.add(item)
         try: request.dbsession.flush()

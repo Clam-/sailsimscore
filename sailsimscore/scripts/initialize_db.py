@@ -21,7 +21,7 @@ def setup_models(dbsession):
     Add or update models / fixtures in the database.
 
     """
-    root = models.user.User(name='root', role=models.user.Role.admin)
+    root = models.user.User(name='admin', email='admin', role=models.user.Role.admin)
     root.set_password("sailsimscore")
     dbsession.add(root)
     # Add boats

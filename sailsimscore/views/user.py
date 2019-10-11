@@ -19,25 +19,29 @@ def edit_user(request):
     item = request.context.item
     edit_url = request.route_url('edit_user', iid=item.id)
     if 'form.submitted' in request.params:
-        name = request.params['name']
-        email = request.params['email']
+        name = request.params.get('name')
+        email = request.params.get('email')
         if not name:
             request.session.flash("d|Require Display Name")
+            request.dbsession.rollback()
             return dict(item=item, url=edit_url)
         if not email:
             request.session.flash("d|Require Email")
+            request.dbsession.rollback()
             return dict(item=item, url=edit_url)
         item.setEmail(email)
         try: request.dbsession.flush()
         except IntegrityError:
             request.session.flash("d|Email in use")
+            request.dbsession.rollback()
             return dict(item=item, url=edit_url, next_url=next_url)
         item.setName(name)
         try: request.dbsession.flush()
         except IntegrityError:
             request.session.flash("d|Display Name in use")
+            request.dbsession.rollback()
             return dict(item=item, url=edit_url, next_url=next_url)
-        item.set_password(request.params['password'])
+        item.set_password(request.params.get('password'))
         return HTTPFound(location=request.route_url('view_user', iid=item.id))
     return dict(item=item, url=edit_url)
 

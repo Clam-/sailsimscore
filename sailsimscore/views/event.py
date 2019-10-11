@@ -8,7 +8,7 @@ import markdown
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
-from ..models import Event
+from ..models import Event, Boat
 from ..models.recordingdata import Course, Gusts, KNOTS_TO_M
 from ..models.eventassoc import association_table
 
@@ -33,69 +33,87 @@ def view_event(request):
     edit_url = request.route_url('edit_event', iid=item.id)
     return dict(item=item, edit_url=edit_url)
 
+def validate_set_event(request, item):
+    # check if have dates
+    if request.params.get('eventStart-dt'):
+        item.start = parser.isoparse(request.params.get('eventStart-dt'))
+        if request.params.get('eventEnd-dt'):
+            item.end = parser.isoparse(request.params.get('eventEnd-dt'))
+        else:
+            #bail
+            request.session.flash("d|Event requires an End datetime")
+            return False
+    else:
+        #bail
+        request.session.flash("d|Event requires a Start datetime")
+        return False
+    return True
+
+def build_boat_respdict(request, item, url):
+    # get boat list for restriction selection
+    # ["Any", None], [Gusts.random.name, Gusts.random.value],
+    boats = [[b.name, b.id] for b in request.dbsession.query(Boat).all()]
+    boats.insert(0, ["Any", ""])
+    allowed = [ b.id for b in item.allowed_boats]
+    if allowed == []: allowed = [""]
+    return dict(
+        item=item,
+        save_url=url,
+        boats=boats, allowed=allowed,
+        )
+
 @view_config(route_name='edit_event', renderer='../templates/edit_event.jinja2',
              permission='edit')
 def edit_event(request):
     item = request.context.item
 
     if 'form.submitted' in request.params:
-        # check if have dates
-        if 'eventStart-dt' in request.params and request.params['eventStart-dt']:
-            item.start = parser.isoparse(request.params['eventStart-dt'])
-            if 'eventEnd-dt' in request.params and request.params['eventEnd-dt']:
-                item.end = parser.isoparse(request.params['eventEnd-dt'])
-            else:
-                #bail
-                request.session.flash("d|Event requires an End datetime")
-                raise HTTPFound(location=request.prev)
-        else:
-            #bail
-            request.session.flash("d|Event requires a Start datetime")
-            raise HTTPFound(location=request.prev)
+        if not validate_set_event(request, item):
+            request.dbsession.rollback()
+            return dict(item=item, save_url=request.route_url('edit_event', iid=item.id))
+
         prevCurrent = item.current
         newCurrent = 'currentCheck' in request.params
         if newCurrent and not prevCurrent:
             request.dbsession.query(Event).update({Event.current:False})
-        item.name = request.params['eventName']
-        item.order = request.params['orderIndex']
+        item.name = request.params.get('eventName')
+        item.order = request.params.get('orderIndex')
         #Restrictions
-        item.gusts = Gusts(int(request.params['gustsRadio']))
+        item.gusts = Gusts(int(request.params.get('gustsRadio', Gusts.none)))
         item.rams = 'ramsCheck' in request.params
-        item.course = Course(int(request.params['courseRadio']))
-        item.bigcourse = True if request.params['bigRadio'] == "yes" else False
-        item.laps = int(request.params['laps'])
-        item.windspeed = int(float(request.params['windspeed'])) * KNOTS_TO_M
+        item.course = Course(int(request.params.get('courseRadio', Course.Triangular)))
+        item.bigcourse = True if request.params.get('bigRadio') == "yes" else False
+        item.laps = int(request.params.get('laps', 1))
+        item.windspeed = int(float(request.params.get('windspeed'))) * KNOTS_TO_M
         item.allowprevious = 'previousCheck' not in request.params
 
         item.current = newCurrent
-        item.notes = request.params['notes']
+        item.notes = request.params.get('notes')
         item.modip = request.remote_addr
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
-    # get boat list for restriction selection
-    boats = request.dbsession.query(Boat).all()
-    return dict(
-        item=item,
-        save_url=request.route_url('edit_event', iid=item.id),
-        )
+    return build_boat_respdict(response, item, request.route_url('edit_event', iid=item.id))
 
 @view_config(route_name='add_event', renderer='../templates/edit_event.jinja2',
              permission='create')
 def add_event(request):
     item = request.context.item
-    if item.id:
-        request.prev = request.route_url("edit_event", iid=item.id)
-    else:
-        request.prev = request.route_url("list_event")
+    save_url = request.route_url('add_event')
     if 'form.submitted' in request.params:
         item.user = request.user
-        item.name = request.params['eventName']
+        item.name = request.params.get('eventName')
+        if not item.name:
+            request.session.flash("d|Event requires a Name")
+            request.dbsession.rollback()
+            return build_boat_respdict(request, item, save_url)
+        if not validate_set_event(request, item):
+            request.dbsession.rollback()
+            return build_boat_respdict(request, item, save_url)
         item.createdip = request.remote_addr
         request.dbsession.add(item)
         request.dbsession.flush()
         return edit_event(request)
-    save_url = request.route_url('add_event')
-    return dict(item=item, save_url=save_url)
+    return build_boat_respdict(request, item, save_url)
 
 @view_config(route_name='delete_event', renderer='../templates/delete_item.jinja2',
              permission='edit')

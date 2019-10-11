@@ -1,4 +1,4 @@
-{% from "macros.jinja" import text_box, check_box, text_area, text_display, datetime_inline, radio with context %}
+{% from "macros.jinja" import text_box, check_box, text_area, text_display, datetime_inline, multi_select with context %}
 {% extends "layout.jinja2" %}
 
 {% block content %}
@@ -15,20 +15,21 @@
   {{ text_box("Ordering indexer", "orderIndex", item.order) }}
   {{ datetime_inline("Event Start", "eventStart", item.start, minfield="eventEnd") }}
   {{ datetime_inline("Event End", "eventEnd", item.end, maxfield="eventStart") }}
-  {{ check_box("Current (makes this the current/active event)", "currentCheck", item.current) }}
+  {{ check_box("Current (makes this the current/active event)", "currentCheck", item.current, title="Current Event") }}
   <h3>{{ text_display("Event Restrictions", "restricttext", "", size=3) }}</h3>
   {{ text_box("Wind Speed [knots] (12 is the default)", "windspeed", item.windspeedknt) }}
-  {{ radio("Course", [[Course.Triangular.name, Course.Triangular.value],
+  {{ multi_select("Course", [[Course.Triangular.name, Course.Triangular.value],
     [Course.Trapezoidal.name, Course.Trapezoidal.value], [Course.CrossWind.name, Course.CrossWind.value],
     [Course.UpDownWind.name, Course.UpDownWind.value], [Course.none.name, Course.none.value]],
-    "courseRadio", item.course.value) }}
-  {{ radio("Laps", [["1", 1], ["2", 2], ["3", 3]], "laps", item.laps) }}
-  {{ radio("Big course", [["No", "no"], ["Yes", "yes"]], "bigRadio", "yes" if item.bigcourse else "no") }}
-  {{ check_box("Enforce Rams", "ramsCheck", 1 if item.rams else 0) }}
-  {{ check_box("Disallow previous uploads", "previousCheck", 0 if item.allowprevious else 1) }}
-  {{ radio("Gusts", [["Any Option", Gusts.any.value], [Gusts.random.name, Gusts.random.value],
+    "courseRadio", [item.course.value]) }}
+  {{ multi_select("Laps", [["1", 1], ["2", 2], ["3", 3]], "laps", [item.laps]) }}
+  {{ multi_select("Big course", [["No", "no"], ["Yes", "yes"]], "bigRadio", ["yes" if item.bigcourse else "no"]) }}
+  {{ check_box("Enforce Rams", "ramsCheck", 1 if item.rams else 0, title="Rams") }}
+  {{ check_box("Disallow previous uploads", "previousCheck", 0 if item.allowprevious else 1, title="Previous uploads") }}
+  {{ multi_select("Gusts", [["Any Option", Gusts.any.value], [Gusts.random.name, Gusts.random.value],
     [Gusts.repeat.name, Gusts.repeat.value], [Gusts.none.name, Gusts.none.value]],
-    "gustsRadio", item.gusts.value) }}
+    "gustsRadio", [item.gusts.value]) }}
+  {{ multi_select("Allowed boats", boats, "boatsAllow", allowed, type="checkbox") }}
   {{ text_area("Event Notes/Rules", "notes", item.notes) }}
   <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
 </form>

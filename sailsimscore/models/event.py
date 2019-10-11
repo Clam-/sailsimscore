@@ -23,8 +23,8 @@ class Event(IPMixin, WindSpeedMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
     order = Column(Integer)
-    start = Column(DateTime)
-    end = Column(DateTime)
+    start = Column(DateTime, nullable=False)
+    end = Column(DateTime, nullable=False)
     current = Column(Boolean(name="current"))
     notes = Column(Text)
     # Restrictions

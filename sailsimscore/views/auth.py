@@ -23,30 +23,45 @@ def create_user(request):
     if 'form.submitted' in request.params:
         url=request.route_url('create_user')
 
-        name = request.params['name']
-        email = request.params['email']
+        name = request.params.get('name')
+        email = request.params.get('email')
+        password = request.params.get('password')
+        password2 = request.params.get('password2')
+        if not password:
+            request.session.flash("d|Require Password")
+            request.dbsession.rollback()
+            return dict(item=item, url=url, next_url=next_url)
+        if password != password2:
+            request.session.flash("d|Passwords do not match")
+            request.dbsession.rollback()
+            return dict(item=item, url=url, next_url=next_url)
         if not name:
             request.session.flash("d|Require Display Name")
+            request.dbsession.rollback()
             return dict(item=item, url=url, next_url=next_url)
         if not email:
             request.session.flash("d|Require Email")
+            request.dbsession.rollback()
             return dict(item=item, url=url, next_url=next_url)
         item.setEmail(email)
         try: request.dbsession.flush()
         except IntegrityError:
             request.session.flash("d|Email already in use")
+            request.dbsession.rollback()
             return dict(item=item, url=url, next_url=next_url)
         item.setName(name)
         try: request.dbsession.flush()
         except IntegrityError:
             request.session.flash("d|Display Name in use")
+            request.dbsession.rollback()
             return dict(item=item, url=url, next_url=next_url)
 
-        item.set_password(request.params['password'])
+        item.set_password(password)
         request.dbsession.add(item)
         try: request.dbsession.flush()
         except IntegrityError:
             request.session.flash("d|Username already exists")
+            request.dbsession.rollback()
             return dict(item=item, url=request.route_url('create_user'), next_url=next_url)
         headers = remember(request, item.id)
         return HTTPFound(location=next_url, headers=headers)
@@ -60,8 +75,8 @@ def login(request):
     message = ''
     login = ''
     if 'form.submitted' in request.params:
-        login = request.params['login']
-        password = request.params['password']
+        login = request.params.get('email')
+        password = request.params.get('password')
         user = request.dbsession.query(User).filter_by(email=login).first()
         if user is not None and user.check_password(password):
             headers = remember(request, user.id)

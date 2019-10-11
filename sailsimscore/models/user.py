@@ -8,6 +8,7 @@ from sqlalchemy import (
     Enum,
     BINARY,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .meta import Base
 from .ip import IPMixin
@@ -20,10 +21,10 @@ class Role(pyEnum):
 class User(IPMixin, Base):
     """ The SQLAlchemy declarative model class for a User object. """
     id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
-    _name = Column(Text, nullable=False, unique=True)
+    _name = Column('name', Text, nullable=False)
+    _name_unique = Column('name_unique', Text, nullable=False, unique=True)
     role = Column(Enum(Role), nullable=False, name="role")
-    email = Column(Text, unique=True)
+    _email = Column('email', Text, unique=True)
     password_hash = Column(BINARY(60))
 
     def set_password(self, pw):
@@ -40,9 +41,17 @@ class User(IPMixin, Base):
     @property
     def desc(self): return self.name
 
-    def setEmail(self, email):
-        return self.email = email.lower()
+    @hybrid_property
+    def email(self):
+        return self._email
+    @email.setter
+    def email(self, em):
+        self._email = em.lower()
 
-    def setName(self, name):
-        self.name = name
-        self._name = name.lower()
+    @hybrid_property
+    def name(self):
+        return self._name
+    @name.setter
+    def name(self, name):
+        self._name = name
+        self._name_unique = name.lower()

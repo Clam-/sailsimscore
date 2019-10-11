@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 37155c0d1b35
+Revision ID: 1aa9a11d9109
 Revises: 
-Create Date: 2019-10-01 17:09:43.157610
+Create Date: 2019-10-11 17:37:24.051782
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '37155c0d1b35'
+revision = '1aa9a11d9109'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,11 +28,13 @@ def upgrade():
     sa.Column('_modip', sa.BINARY(length=16), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Text(), nullable=False),
+    sa.Column('name_unique', sa.Text(), nullable=False),
     sa.Column('role', sa.Enum('admin', 'user', 'teamadmin', name='role'), nullable=False),
     sa.Column('email', sa.Text(), nullable=True),
     sa.Column('password_hash', sa.BINARY(length=60), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_user')),
-    sa.UniqueConstraint('name', name=op.f('uq_user_name'))
+    sa.UniqueConstraint('email', name=op.f('uq_user_email')),
+    sa.UniqueConstraint('name_unique', name=op.f('uq_user_name_unique'))
     )
     op.create_table('comment',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -48,8 +50,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('order', sa.Integer(), nullable=True),
-    sa.Column('start', sa.DateTime(), nullable=True),
-    sa.Column('end', sa.DateTime(), nullable=True),
+    sa.Column('start', sa.DateTime(), nullable=False),
+    sa.Column('end', sa.DateTime(), nullable=False),
     sa.Column('current', sa.Boolean(name='current'), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('gusts', sa.Enum('none', 'random', 'repeat', 'any', name='gusts'), nullable=False),
