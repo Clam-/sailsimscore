@@ -1,19 +1,15 @@
 {% from "macros.jinja" import text_box, with context %}
 {% extends 'layout.jinja2' %}
 
-{% block title %}Login - {% endblock title %}
+{% block title %}Login - Forgot Password {% endblock title %}
 
 {% block content %}
-<h1>Login</h1>
+<h1>Forgot Password</h1>
 <form action="{{ url }}" method="post">
 <input type="hidden" name="next" value="{{ next_url }}">
 {{ text_box("Email", "email", login) }}
-{{ text_box("Password", "password", "", type="password") }}
 <div class="form-group">
-    <button type="submit" name="form.submitted" value="Log In" class="btn btn-primary">Log In</button>
+    <button type="submit" name="form.submitted" value="Reset" class="btn btn-primary">Reset</button>
 </div>
 </form>
-<p>
-  Forgot password? <a href="{{'forgotpass'|route_url}}">Click here.</a>
-</p>
 {% endblock content %}

@@ -31,9 +31,10 @@ def current_event(request):
 def view_event(request):
     item = request.context.item
     edit_url = request.route_url('edit_event', iid=item.id)
-    return dict(item=item, edit_url=edit_url)
+    boats = ", ".join((b.desc for b in item.allowed_boats)) if item.allowed_boats else "Any"
+    return dict(item=item, edit_url=edit_url, boats=boats)
 
-def validate_set_event(request, item):
+def validate_date_event(request, item):
     # check if have dates
     if request.params.get('eventStart-dt'):
         item.start = parser.isoparse(request.params.get('eventStart-dt'))
@@ -62,13 +63,19 @@ def build_boat_respdict(request, item, url):
         boats=boats, allowed=allowed,
         )
 
+def build_boat_list(boats, dbsession):
+    if not boats or '' in boats:
+        return []
+    boatobjs = dbsession.query(Boat).filter(Boat.id.in_(boats)).all()
+    return boatobjs
+
 @view_config(route_name='edit_event', renderer='../templates/edit_event.jinja2',
              permission='edit')
 def edit_event(request):
     item = request.context.item
 
     if 'form.submitted' in request.params:
-        if not validate_set_event(request, item):
+        if not validate_date_event(request, item):
             request.dbsession.rollback()
             return dict(item=item, save_url=request.route_url('edit_event', iid=item.id))
 
@@ -86,13 +93,13 @@ def edit_event(request):
         item.laps = int(request.params.get('laps', 1))
         item.windspeed = int(float(request.params.get('windspeed'))) * KNOTS_TO_M
         item.allowprevious = 'previousCheck' not in request.params
-
+        item.allowed_boats = build_boat_list(request.params.getall('boatsAllow'), request.dbsession)
         item.current = newCurrent
         item.notes = request.params.get('notes')
         item.modip = request.remote_addr
         next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
-    return build_boat_respdict(response, item, request.route_url('edit_event', iid=item.id))
+    return build_boat_respdict(request, item, request.route_url('edit_event', iid=item.id))
 
 @view_config(route_name='add_event', renderer='../templates/edit_event.jinja2',
              permission='create')
@@ -106,7 +113,7 @@ def add_event(request):
             request.session.flash("d|Event requires a Name")
             request.dbsession.rollback()
             return build_boat_respdict(request, item, save_url)
-        if not validate_set_event(request, item):
+        if not validate_date_event(request, item):
             request.dbsession.rollback()
             return build_boat_respdict(request, item, save_url)
         item.createdip = request.remote_addr

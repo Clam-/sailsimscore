@@ -69,6 +69,9 @@ def create_user(request):
 
 @view_config(route_name='login', renderer='../templates/login.jinja2')
 def login(request):
+    if request.user:
+        # already logged in, redirect to home
+        return HTTPFound(location=request.route_url('home'))
     next_url = request.params.get('next', request.referrer)
     if not next_url:
         next_url = request.route_url('home')
@@ -89,6 +92,27 @@ def login(request):
         next_url=next_url,
         login=login,
         )
+
+@view_config(route_name='forgotpass', renderer='../templates/forgotpass.jinja2')
+def forgotpass(request):
+    if request.user:
+        # already logged in, redirect to home
+        return HTTPFound(location=request.route_url('home'))
+    next_url = request.params.get('next', None)
+    if not next_url:
+        next_url = request.route_url('home')
+    login = ''
+    if 'form.submitted' in request.params:
+        login = request.params.get('email')
+        user = request.dbsession.query(User).filter_by(email=login).first()
+        if user is not None:
+            message = Message(subject="hello world",
+                  recipients=[user.email],
+                  body="To reset your password, please click: ")
+            request.mailer.send(message)
+        request.session.flash("s|If that e-mail address is used it will receive a password reset link.")
+
+    return dict(url=request.route_url('forgotpass'), next_url=next_url, login=login,)
 
 @view_config(route_name='logout')
 def logout(request):

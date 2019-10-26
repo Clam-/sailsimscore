@@ -23,7 +23,9 @@ requires = [
     'zope.sqlalchemy',
     'Markdown',
     'pyramid_nacl_session',
-    'python-dateutil'
+    'python-dateutil',
+    'cryptography',
+    'jwcrypto'
 ]
 
 tests_require = [

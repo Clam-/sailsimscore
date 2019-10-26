@@ -20,6 +20,7 @@ def includeme(config):
     config.add_route('list_users', '/user')
     config.add_route('view_user', '/user/{iid}')
     config.add_route('edit_user', '/user/{iid}')
+    config.add_route('forgotpass', '/forgotpassword')
 
     config.add_route('my_account', '/account')
     config.add_route('my_recordings', '/account/recordings')

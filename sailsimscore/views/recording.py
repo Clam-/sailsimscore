@@ -82,11 +82,11 @@ def add_recording_wcheck(request, event, recording, prev):
     if event.rams and recording.rams != event.rams:
         request.session.flash("d|Recording ram setting incorrect.")
         raise HTTPFound(location=prev)
-    if event.allowed_boats and recording.boat not in event.allowedboats:
-        request.session.flash("d|Recording boat setting incorrect.")
+    if event.allowed_boats and recording.boat not in event.allowed_boats:
+        request.session.flash("d|Recording boat not allowed.")
         raise HTTPFound(location=prev)
     if event.laps > 0 and recording.laps != event.laps:
-        request.session.flash("d|Recording boat setting incorrect.")
+        request.session.flash("d|Recording laps setting incorrect.")
         raise HTTPFound(location=prev)
     event.recordings.append(recording)
     return HTTPFound(location=prev)
@@ -116,7 +116,7 @@ def add_recording(request):
                 filter(~Recording.events.any(Event.id == event.id))
             if event.gusts != Gusts.any: recordings = recordings.filter(Recording.gusts==event.gusts)
             if event.rams: recordings = recordings.filter(Recording.rams==event.rams)
-            if event.allowed_boats: recordings = recordings.filter(Recording.boat in event.allowedboats)
+            if event.allowed_boats: recordings = recordings.filter(Recording.boat in event.allowed_boats)
             if event.laps > 0: recordings = recordings.filter(Recording.laps==event.laps)
 
     if 'form.submitted' in request.params:
@@ -214,14 +214,20 @@ def metadataError(s):
     return {"error" : True, "reason" : s}
 
 def version_1_header(header, metadata, dbsession):
-    if len(header) != 9:
+    if len(header) != 10:
         return metadataError("Unsupported recording version")
     else:
         metadata["modified"] = header[1] == "1"
+        boatid = header[2]
+        boatex = header[9]
+        if boatid == "1000" and boatex == "0":
+            return metadataError("Unsupported boat/laser type.")
+        elif boatid == "1000":
+            boatid = boatex
         with dbsession.no_autoflush:
-            boat = dbsession.query(Boat).filter(Boat.id == int(header[2])).first()
+            boat = dbsession.query(Boat).filter(Boat.id == int(boatid)).first()
             if not boat:
-                return metadataError("Unsupported Boat Type (%s)" % header[2])
+                return metadataError("Unsupported Boat Type (%s,%s)" % (boatid, boatex))
             metadata["boattype"] = boat
         metadata["finishtime"] = 99999 if header[3] == "0" else float(header[3])
         metadata["coursetype"] = Course(int(header[4]))

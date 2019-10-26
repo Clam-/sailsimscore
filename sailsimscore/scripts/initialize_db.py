@@ -7,13 +7,15 @@ from sqlalchemy.exc import OperationalError
 from .. import models
 
 BOAT_LIST = [
-    ("LASER", 1000),
-    ("BYTE", 1001),
-    ("OPTI", 1002),
-    ("MEGABYTE", 1011),
-    ("LIBERTY", 1012),
-    ("LIBERTYMOTOR", 1013),
-    ("29ER", 1014),
+    ("Laser Standard", 7000),
+    ("Laser Radial", 7002),
+    ("Laser 4.7", 7003),
+    ("Byte", 1001),
+    ("Opti", 1002),
+    ("Megabyte", 1011),
+    ("Liberty", 1012),
+    ("Liberty Motor", 1013),
+    ("29er", 1014),
 ]
 
 def setup_models(dbsession):

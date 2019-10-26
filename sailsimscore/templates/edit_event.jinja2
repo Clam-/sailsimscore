@@ -44,4 +44,33 @@
 {% endif %}
 </div>
 </div>
+<script type="text/javascript">
+function onBoatChange(event) {
+  // if last item to be unchecked, check Any
+  if (event.target.checked == false) {
+    // check if any other options are checked:
+    if (!($("input:checkbox[name=boatsAllow]").toArray().some(el=>el.checked))) {
+      // check any: Assume first:
+      $("input:checkbox[name=boatsAllow]")[0].checked = true;
+    }
+  } else {
+    if (event.target.value) {
+      // uncheck Any: assume always first item
+      $("input:checkbox[name=boatsAllow]")[0].checked = false;
+    } else {
+      // Any has been checked, uncheck all others...
+      for (const el of $("input:checkbox[name=boatsAllow]")) {
+        if (el.value) { el.checked = false; }
+      }
+    }
+  }
+}
+function addListeners() {
+  for (const el of $("input:checkbox[name=boatsAllow]")) {
+    el.addEventListener('change', onBoatChange);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", addListeners);
+</script>
 {% endblock content %}
