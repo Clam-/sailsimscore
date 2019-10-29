@@ -1,14 +1,14 @@
 {% from "macros.jinja" import text_box, button with context %}
 {% extends 'layout.jinja2' %}
 
-{% block title %}My Account{% endblock title %}
+{% block title %}Account{% endblock title %}
 
 {% block content %}
-<h1>My Account</h1>
+<h1>Account</h1>
 <form action="{{ url }}" method="post"
   oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
-{{ text_box("Display Name", "name", item.name) }}
-{{ text_box("Email", "email", item.email) }}
+{{ text_box("Display Name", "name", name) }}
+{{ text_box("Email", "email", email) }}
 {{ text_box("Password", "password", "", type="password") }}
 {{ text_box("Confirm password", "password2", "", type="password") }}
 {{ button("Update details") }}

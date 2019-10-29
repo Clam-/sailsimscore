@@ -25,7 +25,9 @@ requires = [
     'pyramid_nacl_session',
     'python-dateutil',
     'cryptography',
-    'jwcrypto'
+    'jwcrypto',
+    'paginate==0.5.6', # pagination helpers
+    'paginate_sqlalchemy==0.3.0'
 ]
 
 tests_require = [

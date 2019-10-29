@@ -12,18 +12,17 @@ from . import models
 
 def includeme(config):
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_static_view('download', 'recordings', cache_max_age=3600)
+    config.add_static_view('download', '../recordings', cache_max_age=3600)
     config.add_route('home', '/')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('create_user', '/create')
     config.add_route('list_users', '/user')
-    config.add_route('view_user', '/user/{iid}')
-    config.add_route('edit_user', '/user/{iid}')
+    config.add_route('edit_user', '/user/{iid}', factory=user_factory)
     config.add_route('forgotpass', '/forgotpassword')
 
-    config.add_route('my_account', '/account')
-    config.add_route('my_recordings', '/account/recordings')
+    config.add_route('my_account', '/account', factory=userpage_factory)
+    config.add_route('my_recordings', '/account/recordings', factory=userpage_factory)
 
     config.add_route('current_event', '/current')
     config.add_route('list_event', '/event')
@@ -53,10 +52,11 @@ def includeme(config):
     config.add_route('delete_comment', '/comment/{iid}/delete', factory=comment_factory)
 
 
-def gen_factory(CLS, request):
+def gen_factory(CLS, request, adminview=False):
     iid =  request.matchdict['iid']
     item = request.dbsession.query(CLS).filter_by(id=iid).first()
     if item is None: raise HTTPNotFound
+    if adminview: return AdminViewItem(item)
     return AdminItem(item)
 
 def boat_factory(request):
@@ -69,17 +69,39 @@ def event_factory(request):
 def new_event_factory(request):
     return new_admin_factory(request, models.Event)
 
-def new_admin_factory(request, CLS):
+def user_factory(request):
+    return gen_factory(models.User, request, adminview=True)
+def new_user_factory(request):
+    return new_admin_factory(request, models.User, adminview=True)
+
+def new_admin_factory(request, CLS, adminview=False):
+    if adminview: return AdminViewItem(CLS())
     return AdminItem(CLS())
 class AdminItem(object):
     def __init__(self, item):
         self.item = item
-
     def __acl__(self):
         return [
             (Allow, Everyone, 'view'),
             (Allow, 'role:A', 'create'),
             (Allow, 'role:A', 'edit'),
+        ]
+class AdminViewItem(object):
+    def __init__(self, item):
+        self.item = item
+    def __acl__(self):
+        return [
+            (Allow, 'role:A', 'create'),
+            (Allow, 'role:A', 'edit'),
+        ]
+
+def userpage_factory(request):
+    return UserPages()
+class UserPages(object):
+    def __acl__(self):
+        return [
+            (Allow, Authenticated, 'account'),
+            (Allow, 'role:A', 'edit')
         ]
 
 def new_user_factory(CLS, request):

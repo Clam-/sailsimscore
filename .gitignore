@@ -22,4 +22,4 @@ test
 *.sqlite
 .pytest_cache
 __pycache__
-sailsimscore/recordings/
+recordings/

@@ -34,6 +34,9 @@
           {{ nav_link('list_event'|route_url, "Events", "events") }}
           {{ nav_link('list_recording'|route_url, "Recordings", "recordings") }}
           {{ nav_link('list_boat'|route_url, "Boats", "boats") }}
+{% if request.user and request.user.isAdmin() %}
+          {{ nav_link('list_users'|route_url, "Users", "users") }}
+{% endif %}
         </ul>
         <ul class="navbar-nav">
           {% if request.user %}

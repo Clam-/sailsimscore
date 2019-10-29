@@ -53,6 +53,7 @@
 {% set l = 'view_recording'|route_url(iid=r.id) %}
 {% set lr = 'event_rm_recording'|route_url(iid=r.id, eid=item.id) %}
 {% set le = 'edit_recording'|route_url(iid=r.id) %}
+{% set ld = r.fileloc|downURL %}
     <tr>
       <td class="align-middle" scope="row"><a href="{{l}}">{{ loop.index }}</a></td>
       <td class="align-middle"><a href="{{l}}">{{ r.time|round(3) }}</a></td>
@@ -71,6 +72,7 @@
       <td class="align-middle"><a href="{{l}}">
 {% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-primary" href="{{le}}">Edit</a> {% endif %}
 {% if request.user and (request.user.isAdmin() or request.user == r.user) %}<a class="btn btn-outline-warning" href="{{lr}}"><i class="far fa-trash-alt"></i></a>{% endif %}
+        <a class="btn btn-outline-info" href="{{ld}}"><i class="fa fa-download"></i></a>
       </td>
     </tr>
 {% endfor %}

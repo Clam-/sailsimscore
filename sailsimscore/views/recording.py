@@ -16,10 +16,19 @@ from pyramid.view import view_config
 
 from ..models import Recording, Event, Boat
 from ..models.recording import Course, Gusts, KNOTS_TO_M
+from ..models.paginate import paginator
 
 @view_config(route_name='list_recording', renderer='../templates/list_recording.jinja2')
 def list_recording(request):
-    items = request.dbsession.query(Recording)
+    # filter
+    user = request.params.get("user", None)
+    boat = request.params.get("boat", None)
+    # query build
+    q = request.dbsession.query(Recording)
+    if user: q = q.filter(Recording.user_id==user)
+    if boat: q = q.filter(Recording.boat_id==boat)
+    #pager, etc
+    items = paginator(request, q)
     return dict(items=items)
 
 @view_config(route_name='view_recording', renderer='../templates/view_recording.jinja2',
@@ -99,7 +108,7 @@ def add_recording(request):
     item = request.context.item
     prev = request.route_url("list_recording")
     event = False
-    if request.matchdict['eventid']:
+    if 'eventid' in request.matchdict:
         event = request.dbsession.query(Event).filter_by(id=request.matchdict['eventid']).first()
         if event is None:
             request.session.flash("d|Event not found.")
