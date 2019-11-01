@@ -12,7 +12,6 @@ from . import models
 
 def includeme(config):
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_static_view('download', '../recordings', cache_max_age=3600)
     config.add_route('home', '/')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
@@ -20,6 +19,7 @@ def includeme(config):
     config.add_route('list_users', '/user')
     config.add_route('edit_user', '/user/{iid}', factory=user_factory)
     config.add_route('forgotpass', '/forgotpassword')
+    config.add_route('resetpass', '/reset/{jwe}')
 
     config.add_route('my_account', '/account', factory=userpage_factory)
     config.add_route('my_recordings', '/account/recordings', factory=userpage_factory)
@@ -33,6 +33,7 @@ def includeme(config):
     config.add_route('event_rm_recording', '/event/{eid}/remove/{iid}', factory=recording_factory)
 
     config.add_route('list_recording', '/recording')
+    config.add_route('serve_recording', '/recordings/download/{iid}', factory=recording_factory)
     config.add_route('add_recording_id', '/recording/new/{eventid}', factory=new_recording_factory)
     config.add_route('add_recording_to_event', '/recording/add/{eid}/{iid}', factory=recording_factory)
     config.add_route('add_recording', '/recording/new', factory=new_recording_factory)
@@ -53,7 +54,7 @@ def includeme(config):
 
 
 def gen_factory(CLS, request, adminview=False):
-    iid =  request.matchdict['iid']
+    iid =  request.matchdict.get('iid')
     item = request.dbsession.query(CLS).filter_by(id=iid).first()
     if item is None: raise HTTPNotFound
     if adminview: return AdminViewItem(item)
@@ -123,7 +124,7 @@ class UserItem(object):
 
 #factory for user generated content
 def gen_user_factory(CLS, request):
-    iid =  request.matchdict['iid']
+    iid =  request.matchdict.get('iid')
     item = request.dbsession.query(CLS).filter_by(id=iid).first()
     if item is None: raise HTTPNotFound
     return UserItem(item)

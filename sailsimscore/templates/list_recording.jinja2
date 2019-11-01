@@ -32,7 +32,7 @@
 {% set l = 'view_recording'|route_url(iid=item.id) %}
 {% set lr = 'list_recording'|route_url(_query={'user':item.user_id}) %}
 {% set le = 'edit_recording'|route_url(iid=item.id) %}
-{% set ld = item.fileloc|downURL %}
+{% set ld = 'serve_recording'|route_url(iid=item.id) %}
     <tr>
       <td scope="row"><a href="{{l}}">{{ loop.index }}</a></td>
       <td><a href="{{l}}">{{ '\u2714' if item.modified }}</a></td>

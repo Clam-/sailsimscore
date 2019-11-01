@@ -10,7 +10,7 @@
 {% if (request.user and request.user.isAdmin()) %}
       <a class="btn btn-danger" href="{{'delete_recording'|route_url(iid=item.id)}}" role="button">Delete</a>
 {% endif %}
-      <a class="btn btn-primary" href="{{item.fileloc|downURL}}" role="button">Download</a>
+      <a class="btn btn-primary" href="{{'serve_recording'|route_url(iid=item.id)}}" role="button">Download</a>
     </div>
   </div>
   <div class="row"><div class="col">

@@ -1,0 +1,17 @@
+{% from "macros.jinja" import text_box, with context %}
+{% extends 'layout.jinja2' %}
+
+{% block title %}Login - Reset Password {% endblock title %}
+
+{% block content %}
+<h1>Reset Password</h1>
+<form action="{{ url }}" method="post"
+  oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+<input type="hidden" name="next" value="{{ next_url }}">
+{{ text_box("Password", "password", "", type="password") }}
+{{ text_box("Confirm password", "password2", "", type="password") }}
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="Reset" class="btn btn-primary">Submit</button>
+</div>
+</form>
+{% endblock content %}

@@ -135,7 +135,7 @@ def del_event(request):
 @view_config(route_name='event_rm_recording', renderer='../templates/remove_recording.jinja2',
              permission='edit')
 def event_rm_recording(request):
-    eid = request.matchdict['eid']
+    eid = request.matchdict.get('eid')
     item = request.context.item
     rid = item.id
     event = request.dbsession.query(Event).filter(Event.id==eid).first()

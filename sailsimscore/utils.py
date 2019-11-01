@@ -20,9 +20,6 @@ def includeme(config):
     jinjaenv.filters['markdown'] = \
         lambda text: Markup(markdown(text, output_format="html5")) if text else ""
 
-    #download link maker
-    prefix = config.get_settings()['recordingprefix']
-    jinjaenv.filters['downURL'] = lambda path: join(prefix, path)
     jinjaenv.filters['dtiso'] = lambda dt: dt.isoformat()
     # Add recording Enums to scope
     jinjaenv.globals["Course"] = Course

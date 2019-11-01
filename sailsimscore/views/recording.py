@@ -6,17 +6,35 @@ from csv import reader
 from io import TextIOWrapper
 from tempfile import TemporaryFile
 from shutil import copyfileobj, move, copyfile
-from os.path import join, relpath
+from os.path import join, relpath, exists
 from os import makedirs, error
 from hashlib import sha224
 from binascii import hexlify
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
+from pyramid.response import FileResponse
 
 from ..models import Recording, Event, Boat
 from ..models.recording import Course, Gusts, KNOTS_TO_M
 from ..models.paginate import paginator
+
+@view_config(route_name='serve_recording', permission='view')
+def serve_recording(request):
+    if not request.context.item:
+        raise HTTPNotFound("Recording node not found.")
+    item = request.context.item
+    min, sec = divmod(item.time, 60)
+    rec_loc = request.registry.settings["recordingstorage"]
+    h = hexlify(item.hash).decode("utf-8")
+    fname = join(rec_loc, item.fileloc)
+    if not exists(fname):
+        raise HTTPNotFound("Recording file not found.")
+    client_fname = "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, h[:4])
+
+    resp = FileResponse(fname, request, content_type="application/octet-stream")
+    resp.headers['Content-Disposition'] = 'attachment; filename=%s' % client_fname
+    return resp
 
 @view_config(route_name='list_recording', renderer='../templates/list_recording.jinja2')
 def list_recording(request):
@@ -54,7 +72,7 @@ def edit_recording(request):
 
 @view_config(route_name='add_recording_to_event', permission='create')
 def add_recording_to_event(request):
-    eid = request.matchdict['eid']
+    eid = request.matchdict.get('eid')
     recording = request.context.item
     event = request.dbsession.query(Event).filter_by(id=eid).first()
     if not event:
@@ -173,17 +191,14 @@ def add_recording(request):
         item.boat = metadata["boattype"]
         # copy/move recording to final location and store
         f.seek(0)
-        min, sec = divmod(item.time, 60)
         h = hexlify(item.hash).decode("utf-8")
-        folder = join(request.registry.settings["recordingstorage"], h[:2])
+        folder = join(request.registry.settings["recordingstorage"], h[:4], h[:8])
         try: makedirs(folder)
         except error: pass
-        loc = join(folder,
-            "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, h[:4]))
+        loc = join(folder, h)
         with open(loc, "wb") as outfile:
             copyfileobj(f, outfile)
         item.fileloc = relpath(loc, request.registry.settings["recordingstorage"])
-
         request.dbsession.add(item)
         request.dbsession.flush()
         if event:
