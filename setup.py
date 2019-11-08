@@ -24,6 +24,7 @@ requires = [
     'Markdown',
     'pyramid_nacl_session',
     'python-dateutil',
+    'pyramid_mailer',
     'cryptography',
     'jwcrypto',
     'PasteScript',
