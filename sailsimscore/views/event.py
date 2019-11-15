@@ -11,6 +11,8 @@ from pyramid.view import view_config
 from ..models import Event, Boat
 from ..models.recordingdata import Course, Gusts, KNOTS_TO_M
 from ..models.eventassoc import association_table
+from ..views.utils import filter_recordings
+from ..models.paginate import paginator
 
 @view_config(route_name='list_event', renderer='../templates/list_event.jinja2')
 def list_event(request):
@@ -32,7 +34,15 @@ def view_event(request):
     item = request.context.item
     edit_url = request.route_url('edit_event', iid=item.id)
     boats = ", ".join((b.desc for b in item.allowed_boats)) if item.allowed_boats else "Any"
-    return dict(item=item, edit_url=edit_url, boats=boats)
+    # filter
+    q = filter_recordings(request.dbsession,
+        request.params.get("user", None),
+        request.params.get("boat", None),
+        item.recordings
+    )
+    #pager
+    recordings = paginator(request, q)
+    return dict(item=item, edit_url=edit_url, boats=boats, recordings=recordings)
 
 def validate_date_event(request, item):
     # check if have dates

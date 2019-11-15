@@ -40,7 +40,7 @@ class Event(IPMixin, WindSpeedMixin, Base):
     user = relationship('User', backref='events')
 
     recordings = relationship("Recording", secondary=association_table,
-        back_populates="events")
+        back_populates="events", lazy="dynamic")
     allowed_boats = relationship("Boat", secondary=allowed_table,
         back_populates="events")
 

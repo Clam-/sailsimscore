@@ -31,7 +31,7 @@
       <td class="{{timeclass(now, item)}}"><a href="{{l}}"><span class="timespec">{{ item.start }}</span></a></td>
       <td class="{{timeclass(now, item, False)}}"><a href="{{l}}"><span class="timespec">{{ item.end }}</span></a></td>
       <td><a href="{{l}}">{{ item.name }}</a></td>
-      <td><a href="{{l}}">{{ item.recordings|length }}</a></td>
+      <td><a href="{{l}}">{{ item.recordings.count() }}</a></td>
 {% if request.user and request.user.isAdmin() %} <td><a class="btn btn-outline-primary btn-sm" href="{{request.route_url('edit_event', iid=item.id)}}">Edit</a></td> {% endif %}
     </tr>
 {% endfor %}

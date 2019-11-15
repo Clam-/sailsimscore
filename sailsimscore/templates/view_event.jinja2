@@ -49,7 +49,7 @@
     </tr>
   </thead>
   <tbody>
-{% for r in item.recordings %}
+{% for r in recordings %}
 {% set l = 'view_recording'|route_url(iid=r.id) %}
 {% set lr = 'event_rm_recording'|route_url(iid=r.id, eid=item.id) %}
 {% set le = 'edit_recording'|route_url(iid=r.id) %}
