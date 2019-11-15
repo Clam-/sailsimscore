@@ -36,6 +36,7 @@ class Recording(IPMixin, WindSpeedMixin, Base):
     gusts = Column(Enum(Gusts), nullable=False, name="gusts")
     fileloc = Column(Text)
     deleted = Column(Boolean(name="deleted"))
+    downloads = Column(Integer, nullable=False)
 
     user_id = Column(ForeignKey('user.id'), nullable=False)
     user = relationship('User', backref='recordings')

@@ -41,7 +41,7 @@
         <ul class="navbar-nav">
           {% if request.user %}
           <li class="nav-item my-auto">{{request.user.name}} - {{request.user.role.name}}</li>
-          {{ nav_link('my_recordings'|route_url, "My Recordings", "myrecordings") }}
+          {{ nav_link('list_recording'|route_url(_query={'user':request.user.id}), "My Recordings", "myrecordings") }}
           {{ nav_link('my_account'|route_url, "My Account", "myaccount") }}
           <li class="nav-item">
             <a class="nav-link" href="{{ 'logout'|route_url }}">Logout</a>

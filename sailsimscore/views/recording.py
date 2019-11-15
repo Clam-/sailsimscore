@@ -15,7 +15,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.response import FileResponse
 
-from ..models import Recording, Event, Boat
+from ..models import Recording, Event, Boat, User
 from ..models.recording import Course, Gusts, KNOTS_TO_M
 from ..models.paginate import paginator
 
@@ -31,7 +31,7 @@ def serve_recording(request):
     if not exists(fname):
         raise HTTPNotFound("Recording file not found.")
     client_fname = "{0}.{1:.3f}-{2}-{3}.sbp".format(min, sec, item.course.name, h[:4])
-
+    item.downloads = Recording.downloads + 1
     resp = FileResponse(fname, request, content_type="application/octet-stream")
     resp.headers['Content-Disposition'] = 'attachment; filename=%s' % client_fname
     return resp
@@ -41,13 +41,22 @@ def list_recording(request):
     # filter
     user = request.params.get("user", None)
     boat = request.params.get("boat", None)
+    filters = []
     # query build
     q = request.dbsession.query(Recording)
-    if user: q = q.filter(Recording.user_id==user)
-    if boat: q = q.filter(Recording.boat_id==boat)
+    if user:
+        q = q.filter(Recording.user_id==user)
+        userobj = request.dbsession.query(User).filter(User.id == user).first()
+        if userobj: filters.append("User: {0}".format(userobj.name))
+        else: filters.append("User: {0}".format("Unknown User"))
+    if boat:
+        q = q.filter(Recording.boat_id==boat)
+        boatobj = request.dbsession.query(Boat).filter(Boat.id == boat).first()
+        if boatobj: filters.append("Boat: {0}".format(boatobj.name))
+        else: filters.append("Boat: {0}".format("Unknown Boat"))
     #pager, etc
     items = paginator(request, q)
-    return dict(items=items)
+    return dict(items=items, filters=", ".join(filters))
 
 @view_config(route_name='view_recording', renderer='../templates/view_recording.jinja2',
              permission='view')
