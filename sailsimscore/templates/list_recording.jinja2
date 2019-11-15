@@ -51,7 +51,7 @@
       <td><a href="{{l}}">{{ item.laps }}</a></td>
       <td><a href="{{l}}">{{ item.windspeedknt|round }}</a></td>
       <td><a href="{{l}}">{{ item.gusts.name }}</a></td>
-      <td><a href="{{l}}">{{ "Y" if item.rams else "N" }}</a></td>
+      <td><a href="{{l}}">{{ "ON" if r.rams else "OFF" }}</a></td>
       <td><a href="{{lr}}">{{ item.user.name }}</a></td>
       <td><a href="{{l}}"><span class="timespec">{{ item.datetime }}</span></a></td>
       <td>

@@ -16,23 +16,23 @@
   </div>
   <div class="row">
     <div class="col">
-      Event Start: <span class="timespec">{{item.start}}</span><br>
-      Course: {{item.course.name}} {{"- Big" if item.bigcourse}}<br>
-      Windspeed: <= {{item.windspeedknt}}<br>
-      Gusts: {{item.gusts.name}}<br>
+      <strong>Event Start:</strong> <span class="timespec">{{item.start}}</span><br>
+      <strong>Course:</strong> {{item.course.name}} {{"- Big" if item.bigcourse}}<br>
+      <strong>Windspeed:</strong> <= {{item.windspeedknt}}<br>
+      <strong>Gusts:</strong> {{item.gusts.name}}<br>
     </div>
     <div class="col">
-      Event End: <span class="timespec">{{item.end}}</span><br>
-      Laps: {{item.laps}}<br>
-      Rams: {{"Required" if item.rams else "Optional"}}<br>
-      Allowed boats: {{boats}}
+      <strong>Event End:</strong> <span class="timespec">{{item.end}}</span><br>
+      <strong>Laps:</strong> {{item.laps}}<br>
+      <strong>Rams:</strong> {{"Required" if item.rams else "Optional"}}<br>
+      <strong>Allowed boats:</strong> {{boats}}
     </div>
 
   </div>
   <div class="row"><div class="col">
     {{item.notes|markdown}}
   </div></div>
-  {% if filters: %}
+  {% if filters %}
     <div class="row">
       <div class="col">
         <p>
@@ -52,6 +52,7 @@
       <th scope="col">Uploaded</th>
       <th scope="col">User</th>
       <th scope="col">Gusts</th>
+      <th scope="col">Rams</th>
       <th scope="col">Note</th>
       <th scope="col"><abbr title="Modified settings during race">Mod.</abbr></th>
       <th scope="col"></th>
@@ -72,6 +73,7 @@
       <td class="align-middle"><a href="{{l}}"><span class="timespec">{{ r.datetime }}</span></a></td>
       <td class="align-middle"><a href="{{l}}">{{ r.user.name }}</a></td>
       <td class="align-middle"><a href="{{l}}">{{ r.gusts.name }}</a></td>
+      <td class="align-middle"><a href="{{l}}">{{ "ON" if r.rams else "OFF" }}</a></td>
 {% if r.notes is none or (r.notes and r.notes|length < 15) %}
       <td class="align-middle"><a href="{{l}}">{{ r.notes if r.notes else "&nbsp;"|safe }}</a></td>
 {% else %}
