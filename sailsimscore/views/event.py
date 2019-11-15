@@ -35,14 +35,16 @@ def view_event(request):
     edit_url = request.route_url('edit_event', iid=item.id)
     boats = ", ".join((b.desc for b in item.allowed_boats)) if item.allowed_boats else "Any"
     # filter
-    q = filter_recordings(request.dbsession,
+    q, filters = filter_recordings(request.dbsession,
         request.params.get("user", None),
         request.params.get("boat", None),
         item.recordings
     )
     #pager
     recordings = paginator(request, q)
-    return dict(item=item, edit_url=edit_url, boats=boats, recordings=recordings)
+    return dict(item=item, edit_url=edit_url, boats=boats,
+        recordings=recordings, filters=", ".join(filters)
+    )
 
 def validate_date_event(request, item):
     # check if have dates

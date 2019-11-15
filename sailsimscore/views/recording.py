@@ -40,7 +40,7 @@ def serve_recording(request):
 @view_config(route_name='list_recording', renderer='../templates/list_recording.jinja2')
 def list_recording(request):
     # filter
-    q = filter_recordings(request.dbsession,
+    q, filters = filter_recordings(request.dbsession,
         request.params.get("user", None),
         request.params.get("boat", None),
         request.dbsession.query(Recording)

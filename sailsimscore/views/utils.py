@@ -14,4 +14,4 @@ def filter_recordings(dbsession, user, boat, q):
         if boatobj: filters.append("Boat: {0}".format(boatobj.name))
         else: filters.append("Boat: {0}".format("Unknown Boat"))
     q = q.order_by(Recording.time, Recording.id)
-    return q
+    return q, filters
