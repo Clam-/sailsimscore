@@ -16,7 +16,7 @@ def includeme(config):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('create_user', '/create')
-    config.add_route('list_users', '/user')
+    config.add_route('list_users', '/user', factory=adminpage_factory) #
     config.add_route('edit_user', '/user/{iid}', factory=user_factory)
     config.add_route('forgotpass', '/forgotpassword')
     config.add_route('resetpass', '/reset/{jwe}')
@@ -96,12 +96,20 @@ class AdminViewItem(object):
             (Allow, 'role:A', 'edit'),
         ]
 
+def adminpage_factory(request):
+    return AdminPages()
+class AdminPages(object):
+    def __acl__(self):
+        return [
+            (Allow, 'role:A', 'admin')
+        ]
+
 def userpage_factory(request):
     return UserPages()
 class UserPages(object):
     def __acl__(self):
         return [
-            (Allow, Authenticated, 'account'),
+            (Allow, Authenticated, 'user'),
             (Allow, 'role:A', 'edit')
         ]
 

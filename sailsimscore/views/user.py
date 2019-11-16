@@ -14,7 +14,8 @@ from ..models.user import Role
 
 from .auth import modifyUser
 
-@view_config(route_name='list_users', renderer='../templates/list_user.jinja2')
+@view_config(route_name='list_users', renderer='../templates/list_user.jinja2',
+        permission='admin')
 def list_users(request):
     items = request.dbsession.query(User)
     return dict(items=items)
@@ -38,7 +39,7 @@ def edit_user(request):
     return dict(name=name, email=email, url=edit_url)
 
 @view_config(route_name='my_account', renderer='../templates/my_account.jinja2',
-             permission='account')
+             permission='user')
 def my_account(request):
     item = request.user
     if not item:
