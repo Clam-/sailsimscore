@@ -77,7 +77,7 @@
 {% if r.notes is none or (r.notes and r.notes|length < 15) %}
       <td class="align-middle"><a href="{{l}}">{{ r.notes if r.notes else "&nbsp;"|safe }}</a></td>
 {% else %}
-      <td class="align-middle"><a href="{{l}}"><abbr title="{{ r.notes[:15] }}">{{r.notes}}</abbr></a></td>
+      <td class="align-middle"><a href="{{l}}"><abbr title="{{r.notes|plaindown}}">{{(r.notes|plaindown)[:15]}}</abbr></a></td>
 {% endif %}
       <td class="align-middle"><a href="{{l}}">{{ '\u2714' if r.modified else "&nbsp;"|safe }}</a></td>
       <td class="align-middle"><a href="{{l}}">

@@ -12,10 +12,10 @@
   </div>
   <form action="{{save_url}}" method="post">
   {{ text_box("Event name", "eventName", item.name) }}
-  {{ text_box("Ordering indexer", "orderIndex", item.order) }}
+  {{ text_box("Ordering index", "orderIndex", item.order) }}
   {{ datetime_inline("Event Start", "eventStart", item.start, minfield="eventEnd") }}
   {{ datetime_inline("Event End", "eventEnd", item.end, maxfield="eventStart") }}
-  {{ check_box("Current (makes this the current/active event)", "currentCheck", item.current, title="Current Event") }}
+  {{ check_box('Feature (makes this the main "featured" event)', "currentCheck", item.current, title="Current Event") }}
   <h3>{{ text_display("Event Restrictions", "restricttext", "", size=3) }}</h3>
   {{ text_box("Wind Speed [knots] (12 is the default)", "windspeed", item.windspeedknt) }}
   {{ multi_select("Course", [[Course.Triangular.name, Course.Triangular.value],

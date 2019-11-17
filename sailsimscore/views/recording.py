@@ -60,14 +60,16 @@ def view_recording(request):
              permission='edit')
 def edit_recording(request):
     item = request.context.item
+    next_url = request.params.get('next', request.referrer)
+    if not next_url:
+        next_url = request.route_url('list_recording')
     if 'form.submitted' in request.params:
         item.notes = request.params.get('notes')
-        #Events submitted
-        next_url = request.route_url('view_event', iid=item.id)
         return HTTPFound(location=next_url)
     return dict(
         item=item,
         save_url=request.route_url('edit_recording', iid=item.id),
+        next_url=next_url,
         )
 
 @view_config(route_name='add_recording_to_event', permission='create')

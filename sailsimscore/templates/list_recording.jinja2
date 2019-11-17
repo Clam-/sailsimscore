@@ -32,6 +32,7 @@
       <th scope="col">Gusts</th>
       <th scope="col">Rams</th>
       <th scope="col">User</th>
+      <th scope="col">Note</th>
       <th scope="col">Uploaded</th>
       <th scope="col"></th>
     </tr>
@@ -53,6 +54,7 @@
       <td><a href="{{l}}">{{ item.gusts.name }}</a></td>
       <td><a href="{{l}}">{{ "ON" if item.rams else "OFF" }}</a></td>
       <td><a href="{{lr}}">{{ item.user.name }}</a></td>
+      <td class="align-middle"><a href="{{l}}"><abbr title="{{item.notes|plaindown}}">{{(item.notes|plaindown)[:15]}}</abbr></a></td>
       <td><a href="{{l}}"><span class="timespec">{{ item.datetime }}</span></a></td>
       <td>
 {% if request.user and (request.user.isAdmin() or request.user == item.user) %} <a class="btn btn-outline-primary" href="{{le}}">Edit</a> {% endif %}

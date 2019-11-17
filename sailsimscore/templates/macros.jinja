@@ -90,13 +90,15 @@
 {% endmacro %}
 
 {% macro select(label, options, eid, value=None, size=3) %}
-  <div class="form-row">
-    <label class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
-    <select class="custom-select form-control {{ 'col-sm-%s' % (size+3)|string }}" name="{{eid}}">
+  <div class="form-group form-row">
+    <label for="role" class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</label>
+    <div class="{{ 'col-sm-%s' % (size+2)|string }}">
+      <select class="custom-select form-control" id="role" name="{{eid}}">
   {% for opt in options %}
           <option value="{{opt[1]}}" {{"selected" if opt[1] == value else ""}}>{{opt[0]}}</option>
   {% endfor %}
-    </select>
+      </select>
+    </div>
   </div>
 {% endmacro %}
 

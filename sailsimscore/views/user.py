@@ -20,7 +20,7 @@ def list_users(request):
     items = request.dbsession.query(User)
     return dict(items=items)
 
-@view_config(route_name='edit_user', renderer='../templates/my_account.jinja2',
+@view_config(route_name='edit_user', renderer='../templates/edit_user.jinja2',
              permission='edit')
 def edit_user(request):
     item = request.context.item
@@ -33,9 +33,12 @@ def edit_user(request):
         email = request.params.get('email')
         password = request.params.get('password')
         password2 = request.params.get('password2')
+        role = request.params.get('role')
         if modifyUser(request, item, name, email, password, password2, edit=True) is False:
             return dict(name=name, email=email, url=url, next_url=next_url,
                 role=item.role.value, roles=roles)
+        # set role:
+        item.role = Role(role)
         request.session.flash("s|Account updated.")
         return HTTPFound(location=request.route_url('list_users'))
     return dict(name=name, email=email, url=edit_url, role=item.role.value, roles=roles)

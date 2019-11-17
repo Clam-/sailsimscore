@@ -15,6 +15,7 @@
   </div>
   <div class="row"><div class="col">
     <form action="{{save_url}}" method="post">
+      <input type="hidden" name="next" value="{{ next_url }}">
     {{ text_area("Recording note", "notes", item.notes) }}
     <button type="submit" class="btn btn-primary" name="form.submitted">Submit</button>
     </form>
