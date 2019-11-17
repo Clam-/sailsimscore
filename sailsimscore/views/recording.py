@@ -213,7 +213,8 @@ def process_recording(f, dbsession):
     f.seek(0)
     ft = TextIOWrapper(f, encoding='ascii', errors='replace')
     csvreader = reader(ft, delimiter='\t')
-    header = next(csvreader)
+    try: header = next(csvreader)
+    except: return metadataError("File not understood.")
     metadata = {"error" : False}
     version = "0"
     # check header
