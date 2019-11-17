@@ -89,6 +89,17 @@
 </fieldset>
 {% endmacro %}
 
+{% macro select(label, options, eid, value=None, size=3) %}
+  <div class="form-row">
+    <label class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>
+    <select class="custom-select form-control {{ 'col-sm-%s' % (size+3)|string }}" name="{{eid}}">
+  {% for opt in options %}
+          <option value="{{opt[1]}}" {{"selected" if opt[1] == value else ""}}>{{opt[0]}}</option>
+  {% endfor %}
+    </select>
+  </div>
+{% endmacro %}
+
 {% macro datetime(label, eid, value, size=3) %}
 <div class="row">
   <legend class="col-form-label {{ ('col-sm-%s' % size)|safe }} pt-0">{{label}}</legend>

@@ -25,6 +25,7 @@ def list_users(request):
 def edit_user(request):
     item = request.context.item
     edit_url = request.route_url('edit_user', iid=item.id)
+    roles = [[r.name, r.value] for r in Role]
     name = item.name
     email = item.email
     if 'form.submitted' in request.params:
@@ -33,10 +34,11 @@ def edit_user(request):
         password = request.params.get('password')
         password2 = request.params.get('password2')
         if modifyUser(request, item, name, email, password, password2, edit=True) is False:
-            return dict(name=name, email=email, url=url, next_url=next_url)
+            return dict(name=name, email=email, url=url, next_url=next_url,
+                role=item.role.value, roles=roles)
         request.session.flash("s|Account updated.")
         return HTTPFound(location=request.route_url('list_users'))
-    return dict(name=name, email=email, url=edit_url)
+    return dict(name=name, email=email, url=edit_url, role=item.role.value, roles=roles)
 
 @view_config(route_name='my_account', renderer='../templates/my_account.jinja2',
              permission='user')

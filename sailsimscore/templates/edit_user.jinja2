@@ -1,0 +1,17 @@
+{% from "macros.jinja" import text_box, select, button with context %}
+{% extends 'layout.jinja2' %}
+
+{% block title %}User - Edit{% endblock title %}
+
+{% block content %}
+<h1>Edit User</h1>
+<form action="{{ url }}" method="post"
+  oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+{{ text_box("Display Name", "name", name) }}
+{{ text_box("Email", "email", email) }}
+{{ select("Role", roles, "role", role) }}
+{{ text_box("Password", "password", "", type="password") }}
+{{ text_box("Confirm password", "password2", "", type="password") }}
+{{ button("Update details") }}
+</form>
+{% endblock content %}
